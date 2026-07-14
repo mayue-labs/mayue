@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Clock</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #17140f;
+      color: #f2ece2;
+      overflow: hidden;
+      -webkit-transition: background-color 2s ease;
+      transition: background-color 2s ease;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* ---- Fixed 1920x1080 design canvas, scaled + centered via JS ---- */
+    .stage {
+      width: 1920px;
+      height: 1080px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      -webkit-transform-origin: 0 0;
+      transform-origin: 0 0;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* ---- Top info row ---- */
+    .info-row {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      position: absolute;
+      top: 116px;
+      left: 0;
+      -webkit-box-orient: horizontal;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      -webkit-box-align: start;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+      width: auto;
+    }
+
+    .info-left {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+    }
+
+    .info-middle {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      margin-left: 48px;
+    }
+
+    .info-right {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      margin-left: 48px;
+    }
+
+    .row-top {
+      height: 30px;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+
+    .weekday {
+      color: #e2662b;
+      font-size: 21px;
+      font-weight: bold;
+      font-family: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      letter-spacing: 7px;
+      line-height: 1;
+    }
+
+    .weekday-dash {
+      width: 27px;
+      height: 5px;
+      background-color: #e2662b;
+    }
+
+    .date {
+      color: #f2ece2;
+      font-size: 46px;
+      font-weight: normal;
+      font-family: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      line-height: 1;
+      margin-top: 10px;
+    }
+
+    .tagline {
+      color: #f2ece2;
+      font-size: 46px;
+      font-family: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      letter-spacing: 6px;
+      line-height: 1;
+      margin-top: 10px;
+      white-space: nowrap;
+      display: flex;
+      align-items: flex-start;
+    }
+    .tagline-img {
+      display: none;
+      vertical-align: top;
+      margin-left: 14px;
+      margin-top: -55px;
+      width: 100px;
+      height: 100px;
+    }
+    .tagline-img.show {
+      display: inline-block;
+      -webkit-animation: imgSlideIn 0.6s ease-out forwards;
+      animation: imgSlideIn 0.6s ease-out forwards;
+    }
+    @-webkit-keyframes imgSlideIn {
+      from { opacity: 0; -webkit-transform: translateX(20px); }
+      to   { opacity: 1; -webkit-transform: translateX(0); }
+    }
+    @keyframes imgSlideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ---- Time row ---- */
+    .time-row {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      position: absolute;
+      left: 50%;
+      top: calc(50% + 70px);
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+
+    .time-part {
+      color: #f2ece2;
+      font-size: 520px;
+      font-weight: bold;
+      font-family: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      line-height: 1;
+    }
+
+    .colon-wrap {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      width: 130px;
+      height: 434px;
+    }
+
+    .colon-dot {
+      width: 56px;
+      height: 56px;
+      background-color: #e2662b;
+    }
+
+    .colon-dot.top {
+      margin-bottom: 35px;
+    }
+
+    /* ---- Ambient effect layers ---- */
+    .fx-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      pointer-events: none;
+      opacity: 0;
+      -webkit-transition: opacity 2s ease;
+      transition: opacity 2s ease;
+      overflow: hidden;
+    }
+    .fx-layer.active {
+      opacity: 1;
+    }
+
+    /* Ambient Icon, top-right */
+    .ambient-wrap {
+      position: absolute;
+      top: 86px;
+      right: 170px;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ambient-icon {
+      width: 150px;
+      height: 150px;
+      fill: rgba(242, 236, 226, 0.86);
+      filter: drop-shadow(0 0 20px rgba(242, 236, 226, 0.3));
+    }
+
+    /* Night: twinkling stars, top-right */
+    .star {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: #f2ece2;
+      opacity: 0;
+      -webkit-animation-name: twinkle;
+      animation-name: twinkle;
+      -webkit-animation-timing-function: ease-in-out;
+      animation-timing-function: ease-in-out;
+      -webkit-animation-iteration-count: infinite;
+      animation-iteration-count: infinite;
+    }
+    .star.s1 { top: 60px; right: 380px; -webkit-animation-duration: 4s; animation-duration: 4s; -webkit-animation-delay: 0s; animation-delay: 0s; }
+    .star.s2 { top: 160px; right: 130px; width: 4px; height: 4px; -webkit-animation-duration: 5s; animation-duration: 5s; -webkit-animation-delay: 1s; animation-delay: 1s; }
+    .star.s3 { top: 40px; right: 220px; width: 3px; height: 3px; -webkit-animation-duration: 4.5s; animation-duration: 4.5s; -webkit-animation-delay: 2s; animation-delay: 2s; }
+    .star.s4 { top: 220px; right: 300px; width: 4px; height: 4px; -webkit-animation-duration: 6s; animation-duration: 6s; -webkit-animation-delay: 0.5s; animation-delay: 0.5s; }
+    .star.s5 { top: 100px; right: 60px; width: 3px; height: 3px; -webkit-animation-duration: 5.5s; animation-duration: 5.5s; -webkit-animation-delay: 3s; animation-delay: 3s; }
+    .star.s6 { top: 260px; right: 150px; width: 4px; height: 4px; -webkit-animation-duration: 4.8s; animation-duration: 4.8s; -webkit-animation-delay: 1.5s; animation-delay: 1.5s; }
+    .star.s7 { top: 20px; right: 320px; width: 3px; height: 3px; -webkit-animation-duration: 5s; animation-duration: 5s; -webkit-animation-delay: 2.5s; animation-delay: 2.5s; }
+    @-webkit-keyframes twinkle {
+      0%, 100% { opacity: 0; -webkit-transform: scale(0.6); }
+      50% { opacity: 1; -webkit-transform: scale(1.2); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.6); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+
+    /* ---- Mode switch toast ---- */
+    .mode-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 60px;
+      -webkit-transform: translateX(-50%) translateY(20px);
+      transform: translateX(-50%) translateY(20px);
+      z-index: 100;
+      padding: 14px 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 32px;
+      color: #f2ece2;
+      font-size: 28px;
+      font-family: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      letter-spacing: 4px;
+      opacity: 0;
+      -webkit-transition: opacity 0.4s ease, -webkit-transform 0.4s ease, background-color 0.4s ease, color 0.4s ease;
+      transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.4s ease, color 0.4s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .mode-toast.show {
+      opacity: 1;
+      -webkit-transform: translateX(-50%) translateY(0);
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="fx-layer" id="fxMorning">
+      <div class="ambient-wrap">
+        <svg class="ambient-icon" viewBox="0 0 24 24">
+          <path d="M6.76,4.84L5,3.07L3.59,4.48L5.36,6.25L6.76,4.84M2,12H5V10H2V12M12,3.5V2H10V5H12V3.5M19,3.07L17.24,4.84L18.65,6.25L20.41,4.48L19,3.07M12,18C8.69,18 6,15.31 6,12C6,8.69 8.69,6 12,6C15.31,6 18,8.69 18,12C18,15.31 15.31,18 12,18M12,8C9.79,8 8,9.79 8,12C8,14.21 9.79,16 12,16C14.21,16 16,14.21 16,12C16,9.79 14.21,8 12,8M18.65,17.75L17.24,19.16L19,20.93L20.41,19.52L18.65,17.75M19,10V12H22V10H19M10,19V22H12V19H10M5,17.75L3.24,19.52L4.65,20.93L6.41,19.16L5,17.75Z" />
+        </svg>
+      </div>
+    </div>
+    <div class="fx-layer" id="fxAfternoon">
+      <div class="ambient-wrap">
+        <svg class="ambient-icon" viewBox="0 0 24 24">
+          <path d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5A2,2 0 0,0 20,3M16,13A2,2 0 0,1 14,15H8A2,2 0 0,1 6,13V5H16Z" />
+        </svg>
+      </div>
+    </div>
+    <div class="fx-layer" id="fxNight">
+      <div class="ambient-wrap">
+        <svg class="ambient-icon" viewBox="0 0 24 24">
+          <path d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4.09L13.5,1L14.56,4.09L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,11L18.5,9.06L19.19,11L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.77 10.64,12.68C12.54,14.58 15.42,15.54 18.27,15.27L18.97,15.95Z" />
+        </svg>
+      </div>
+      <div class="star s1"></div>
+      <div class="star s2"></div>
+      <div class="star s3"></div>
+      <div class="star s4"></div>
+      <div class="star s5"></div>
+      <div class="star s6"></div>
+      <div class="star s7"></div>
+    </div>
+    <div class="container">
+      <div class="info-row">
+        <div class="info-left">
+          <div class="row-top"><div class="weekday" id="weekday">星期四</div></div>
+          <div class="date" id="date">7月2日</div>
+        </div>
+        <div class="info-middle">
+          <div class="row-top"><div class="weekday" id="progressLabel">今年进度</div></div>
+          <div class="date" id="yearProgress">50%</div>
+        </div>
+        <div class="info-right">
+          <div class="row-top"><div class="weekday-dash"></div></div>
+          <div class="tagline" id="tagline">
+            <span id="taglineText">马老师，祝你早安！</span>
+            <img class="tagline-img" id="taglineImg" src="tagline-img.png" width="50" height="50" alt="" />
+          </div>
+        </div>
+      </div>
+
+      <div class="time-row">
+        <div class="time-part" id="hours">00</div>
+        <div class="colon-wrap">
+          <div class="colon-dot top" id="dotTop"></div>
+          <div class="colon-dot bottom" id="dotBottom"></div>
+        </div>
+        <div class="time-part" id="minutes">00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-toast" id="modeToast"></div>
+
+  <script>
+    var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    var blinkOn = true;
+
+    // Mode cycle: auto -> morning -> afternoon -> night -> auto
+    var modeCycle = ['auto', 'morning', 'afternoon', 'night'];
+    var modeLabels = {
+      auto: '自动切换',
+      morning: '早安模式',
+      afternoon: '午安模式',
+      night: '晚安模式'
+    };
+    var currentMode = 'auto';
+    var toastTimer = null;
+
+    function setMode(mode) {
+      currentMode = mode;
+      update();
+      showToast(modeLabels[mode] || mode);
+    }
+
+    function showToast(text) {
+      var toast = document.getElementById('modeToast');
+      toast.innerHTML = text;
+      var isMorning = currentMode === 'morning';
+      toast.style.background = isMorning ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.5)';
+      toast.style.color = isMorning ? '#1a1a1a' : '#f2ece2';
+      toast.classList.add('show');
+      if (toastTimer) {
+        clearTimeout(toastTimer);
+      }
+      toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    function alignInfoToTime() {
+      var infoRow = document.querySelector('.info-row');
+      var timeRow = document.querySelector('.time-row');
+      var timeLeft = (1920 - timeRow.offsetWidth) / 2;
+      infoRow.style.left = Math.round(timeLeft) + 'px';
+    }
+
+    function periodFor(name) {
+      if (name === 'morning') {
+        return {
+          greeting: '早安',
+          bgColor: '#ffffff',
+          textColor: '#1a1a1a',
+          accentColor: '#e2662b',
+          fx: 'fxMorning'
+        };
+      } else if (name === 'afternoon') {
+        return {
+          greeting: '午安',
+          bgColor: '#1F1F1E',
+          textColor: '#f2ece2',
+          accentColor: '#e2662b',
+          fx: 'fxAfternoon'
+        };
+      } else {
+        return {
+          greeting: '晚安',
+          bgColor: '#0D1117',
+          textColor: '#f2ece2',
+          accentColor: '#e2662b',
+          fx: 'fxNight'
+        };
+      }
+    }
+
+    function currentPeriodName(h) {
+      if (h >= 5 && h < 11) {
+        return 'morning';
+      } else if (h >= 11 && h < 18) {
+        return 'afternoon';
+      } else {
+        return 'night';
+      }
+    }
+
+    function update() {
+      var now = new Date();
+      var h = now.getHours();
+      var m = now.getMinutes();
+      var hStr = h < 10 ? '0' + h : '' + h;
+      var mStr = m < 10 ? '0' + m : '' + m;
+
+      document.getElementById('hours').innerHTML = hStr;
+      document.getElementById('minutes').innerHTML = mStr;
+      alignInfoToTime();
+
+      blinkOn = !blinkOn;
+      var opacity = blinkOn ? '1' : '0.15';
+      document.getElementById('dotTop').style.opacity = opacity;
+      document.getElementById('dotBottom').style.opacity = opacity;
+
+      document.getElementById('weekday').innerHTML = weekdays[now.getDay()];
+      document.getElementById('date').innerHTML = (now.getMonth() + 1) + '月' + now.getDate() + '日';
+
+      // Decide which period to show
+      var activePeriodName = currentMode === 'auto' ? currentPeriodName(h) : currentMode;
+      var period = periodFor(activePeriodName);
+
+      document.getElementById('taglineText').innerHTML = '马老师，' + period.greeting + '！';
+      document.documentElement.style.backgroundColor = period.bgColor;
+      document.body.style.backgroundColor = period.bgColor;
+
+      // Apply text colors
+      var elements = document.querySelectorAll('.date, .tagline, .time-part');
+      for (var j = 0; j < elements.length; j++) {
+        elements[j].style.color = period.textColor;
+      }
+      var accents = document.querySelectorAll('.colon-dot');
+      for (var k = 0; k < accents.length; k++) {
+        accents[k].style.backgroundColor = period.accentColor;
+      }
+
+      // Ambient icon color adapts to background
+      var ambientIcons = document.querySelectorAll('.ambient-icon');
+      for (var n = 0; n < ambientIcons.length; n++) {
+        ambientIcons[n].style.fill = period.textColor === '#1a1a1a'
+          ? 'rgba(0, 0, 0, 0.7)'
+          : 'rgba(242, 236, 226, 0.86)';
+      }
+      // Show 1.png only in night mode
+      var taglineImg = document.getElementById('taglineImg');
+      if (activePeriodName === 'night') {
+        taglineImg.classList.add('show');
+      } else {
+        taglineImg.classList.remove('show');
+      }
+
+      alignInfoToTime();
+
+      var fxIds = ['fxMorning', 'fxAfternoon', 'fxNight'];
+      for (var i = 0; i < fxIds.length; i++) {
+        var el = document.getElementById(fxIds[i]);
+        if (fxIds[i] === period.fx) {
+          el.className = 'fx-layer active';
+        } else {
+          el.className = 'fx-layer';
+        }
+      }
+
+      var startOfYear = new Date(now.getFullYear(), 0, 1);
+      var dayOfYear = Math.floor((now - startOfYear) / 86400000) + 1;
+      var year = now.getFullYear();
+      var isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+      var totalDays = isLeap ? 366 : 365;
+      var percent = Math.round((dayOfYear / totalDays) * 100);
+      document.getElementById('yearProgress').innerHTML = percent + '%';
+    }
+
+    // Left / Right arrow keys to cycle modes
+    // Support standard keyboard + common TV remote codes (21/22=speech-remote, 37/39=legacy, 4/5=android-dpad)
+    document.addEventListener('keydown', function(e) {
+      var isLeft = e.key === 'ArrowLeft' || e.keyCode === 21 || e.keyCode === 37 || e.keyCode === 4;
+      var isRight = e.key === 'ArrowRight' || e.keyCode === 22 || e.keyCode === 39 || e.keyCode === 5;
+
+      if (isLeft || isRight) {
+        e.preventDefault();
+        var idx = modeCycle.indexOf(currentMode);
+        if (isRight) {
+          idx = (idx + 1) % modeCycle.length;
+        } else {
+          idx = idx <= 0 ? modeCycle.length - 1 : idx - 1;
+        }
+        setMode(modeCycle[idx]);
+      }
+    });
+
+    function fitStage() {
+      var stage = document.getElementById('stage');
+      var winW = window.innerWidth;
+      var winH = window.innerHeight;
+      var scale = Math.min(winW / 1920, winH / 1080);
+      var offsetX = (winW - 1920 * scale) / 2;
+      var offsetY = (winH - 1080 * scale) / 2;
+
+      var transformValue = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
+      stage.style.webkitTransform = transformValue;
+      stage.style.transform = transformValue;
+    }
+
+    update();
+    setInterval(update, 1000);
+
+    fitStage();
+    window.addEventListener('resize', fitStage);
+    window.addEventListener('orientationchange', fitStage);
+    window.addEventListener('load', alignInfoToTime);
+  </script>
+</body>
+</html>

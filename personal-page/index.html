@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>马老师的个人介绍</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #1a1714;
+      --bg-card:   #231f1b;
+      --bg-card2:  #2a2420;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #d4956a;
+      --accent2:   #c17a48;
+      --text-hi:   #f0ebe4;
+      --text-mid:  #b8afa5;
+      --text-lo:   #7a7068;
+      --tag-bg:    rgba(212,149,106,0.12);
+      --tag-bdr:   rgba(212,149,106,0.3);
+      --radius:    16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text-hi);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(26,23,20,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 15px; font-weight: 600; color: var(--text-hi); letter-spacing: 0.08em; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { font-size: 13px; color: var(--text-mid); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--text-hi); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 82vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 48px 56px;
+      max-width: 1100px; margin: 0 auto;
+      position: relative;
+    }
+    .dot-strip {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent2) 25%, #e8b08a 50%, var(--accent2) 75%, transparent 100%);
+      opacity: .7;
+    }
+    .hero-eyebrow {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.12em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero-title {
+      font-size: clamp(52px, 7.5vw, 88px);
+      font-weight: 700; line-height: 1.12;
+      color: var(--text-hi); margin-bottom: 28px;
+      letter-spacing: -0.025em;
+    }
+    .hero-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, #e8c4a0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-desc {
+      font-size: 18px; color: var(--text-mid); max-width: 560px;
+      line-height: 1.75; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .htag {
+      padding: 7px 16px; border-radius: 40px;
+      border: 1px solid var(--tag-bdr);
+      background: var(--tag-bg);
+      font-size: 13px; color: var(--accent); font-weight: 500;
+    }
+
+    /* ── MAIN ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 0 48px 120px; }
+
+    .section-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px; font-weight: 700; color: var(--text-hi);
+      margin-bottom: 32px; letter-spacing: -0.02em;
+    }
+
+    /* ── UNIFIED CARD ── */
+    .card-grid {
+      display: grid; gap: 16px;
+      margin-bottom: 72px;
+    }
+    .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex; flex-direction: column;
+      transition: border-color .25s, transform .25s;
+      position: relative; overflow: hidden;
+    }
+    .card.svc { background: var(--bg-card2); }
+    .card:hover {
+      border-color: rgba(212,149,106,0.28);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--tag-bg); border: 1px solid var(--tag-bdr);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px; flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 15px; font-weight: 600; color: var(--text-hi);
+      margin-bottom: 8px; line-height: 1.4; flex-shrink: 0;
+    }
+    .card-body {
+      font-size: 13px; color: var(--text-mid); line-height: 1.7;
+    }
+
+    /* stat row */
+    .card-stat {
+      margin-top: auto; padding-top: 12px;
+      display: flex; gap: 20px; flex-shrink: 0;
+    }
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-num {
+      font-size: 22px; font-weight: 700; color: var(--accent);
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .stat-label { font-size: 11px; color: var(--text-lo); margin-top: 3px; }
+
+    /* price row */
+    .card-price {
+      margin-top: auto; padding-top: 12px; flex-shrink: 0;
+    }
+    .price-num { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.01em; }
+    .price-unit { font-size: 12px; color: var(--text-lo); margin-top: 2px; }
+
+    /* tool chips */
+    .tool-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip {
+      padding: 3px 10px; border-radius: 40px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      font-size: 11px; color: var(--text-mid); font-weight: 500;
+    }
+    .chip.hi { background: var(--tag-bg); border-color: var(--tag-bdr); color: var(--accent); }
+
+    /* bg number decoration */
+    .bg-num {
+      position: absolute; right: -6px; bottom: -14px;
+      font-size: 88px; font-weight: 800;
+      color: rgba(255,255,255,0.025);
+      line-height: 1; pointer-events: none; letter-spacing: -0.04em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      max-width: 1100px; margin: 0 auto;
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer p { font-size: 13px; color: var(--text-lo); }
+    .footer-accent { color: var(--accent); font-weight: 500; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 120px 24px 60px; }
+      .main { padding: 0 24px 80px; }
+      .card-grid.cols-3, .card-grid.cols-4, .card-grid.cols-2 { grid-template-columns: 1fr; }
+      footer { padding: 32px 24px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">MAYUE</div>
+  <div class="nav-links">
+    <a href="#career">职业经历</a>
+    <a href="#ai">AI 能力</a>
+    <a href="#slash">斜杠身份</a>
+    <a href="#services">服务</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="dot-strip"></div>
+  <div class="hero-eyebrow">Product · AI · Creator</div>
+  <h1 class="hero-title">
+    用产品思维<br>构建<em>更智能</em>的工作方式
+  </h1>
+  <p class="hero-desc">
+    <span style="color:var(--text-hi);font-weight:600;letter-spacing:0.04em;">MAYUE</span> ·
+    11 年互联网产品与项目管理经验，AI 重度实践者，
+    致力于将前沿工具转化为真实的效率提升——在团队、在课堂、在镜头之外。
+  </p>
+  <div class="hero-tags">
+    <span class="htag">AI 应用实践</span>
+    <span class="htag">产品经理</span>
+    <span class="htag">项目管理</span>
+    <span class="htag">羽毛球教练</span>
+    <span class="htag">街头摄影</span>
+    <span class="htag">数码极客</span>
+    <span class="htag">阅读者</span>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- CAREER -->
+  <section id="career">
+    <div class="section-eyebrow">职业经历</div>
+    <h2 class="section-title">产品与管理</h2>
+    <div class="card-grid cols-3">
+
+      <div class="card reveal">
+        <div class="card-icon">👤</div>
+        <div class="card-title">C 端产品设计</div>
+        <div class="card-body">
+          深耕大屏端及小程序领域，覆盖前台体验设计与后台系统设计的全链路。
+          擅长从用户需求出发，设计兼顾业务目标与使用感受的产品方案。
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-icon">👥</div>
+        <div class="card-title">跨组织项目管理</div>
+        <div class="card-body">
+          擅长多团队协作与跨部门推进，能在资源约束、目标分歧的复杂场景中
+          建立清晰的项目节奏，推动关键里程碑落地。
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">面试与人才服务</div>
+        <div class="card-body">
+          累计面试候选人逾 200 人，对产品岗位评估维度与候选人常见盲点有深入了解。
+          可提供简历诊断、模拟面试及求职策略辅导。
+        </div>
+        <div class="card-stat">
+          <div class="stat-item">
+            <span class="stat-num">11</span>
+            <span class="stat-label">年行业经验</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">200+</span>
+            <span class="stat-label">累计面试人次</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- AI -->
+  <section id="ai">
+    <div class="section-eyebrow">AI 能力</div>
+    <h2 class="section-title">深度实践与企业赋能</h2>
+    <div class="card-grid cols-4">
+
+      <div class="card reveal">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">主力 AI 工具栈</div>
+        <div class="tool-chips">
+          <span class="chip hi">Claude</span>
+          <span class="chip hi">ChatGPT</span>
+          <span class="chip hi">Gemini</span>
+          <span class="chip hi">OpenClaw</span>
+          <span class="chip">Google AI Studio</span>
+          <span class="chip">飞书多维表格</span>
+          <span class="chip">飞书 AI</span>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-icon">📊</div>
+        <div class="card-title">飞书平台专家</div>
+        <div class="card-body">
+          精通飞书生态深度集成与多维表格（龙虾）的高阶应用，
+          具备为企业团队提供系统性能力培训的专业水平。
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-icon">⚡️</div>
+        <div class="card-title">开发类工具实践</div>
+        <div class="card-body">
+          熟练使用 Google AI Studio 进行模型调试与 Prompt 工程；
+          借助 Trae 参与 AI 辅助开发；
+          配合 Cubox 构建个人知识管理闭环。
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-icon">🏫</div>
+        <div class="card-title">企业 AI 效率培训</div>
+        <div class="card-body">
+          提供 AI 办公实战培训，涵盖会议纪要自动化、文档处理、AIGC 内容生产。
+          擅长挖掘流程瓶颈，给出可落地方案并直接产出提效工具。
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SLASH -->
+  <section id="slash">
+    <div class="section-eyebrow">斜杠青年</div>
+    <h2 class="section-title">另一面的我</h2>
+    <div class="card-grid cols-2">
+
+      <div class="card reveal">
+        <div class="bg-num">01</div>
+        <div class="card-icon">🏸</div>
+        <div class="card-title">羽毛球教练</div>
+        <div class="card-body">
+          球龄 10 年+，累计培训学员约 50 人，年龄从 6 岁至 65 岁，
+          核心群体为 15–35 岁青少年及中青年。因材施教，不同年龄层用不同教学节奏。
+        </div>
+        <div class="card-stat">
+          <div class="stat-item">
+            <span class="stat-num">50+</span>
+            <span class="stat-label">累计培训人次</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">10年+</span>
+            <span class="stat-label">球龄</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="bg-num">02</div>
+        <div class="card-icon">📷</div>
+        <div class="card-title">街头摄影</div>
+        <div class="card-body">
+          专注街头人文摄影，用镜头捕捉城市中转瞬即逝的真实瞬间。
+          风格克制而有张力，持续分享城市观察与影像思考。
+        </div>
+        <div class="card-stat">
+          <div class="stat-item">
+            <span class="stat-num">6000+</span>
+            <span class="stat-label">社交媒体粉丝</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="bg-num">03</div>
+        <div class="card-icon">💻</div>
+        <div class="card-title">数码极客</div>
+        <div class="card-body">
+          深度科技发烧友，持续追踪硬件、软件与 AI 的前沿动态。
+          不止是消费者，更是实践者——习惯将新工具快速接入工作与创作流。
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="bg-num">04</div>
+        <div class="card-icon">📚</div>
+        <div class="card-title">阅读者</div>
+        <div class="card-body">
+          偏爱有真实重量的书——人物传记让我理解决策背后的人性，
+          心理学帮我看清动机与认知的底层逻辑，
+          产品类书籍则持续校准我对用户与系统的判断。
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="section-eyebrow">可提供的服务</div>
+    <h2 class="section-title">合作方式</h2>
+    <div class="card-grid cols-3">
+
+      <div class="card svc reveal">
+        <div class="card-icon">💼</div>
+        <div class="card-title">求职辅导</div>
+        <div class="card-body">
+          简历诊断 · 模拟面试 · 岗位匹配分析<br>
+          适合互联网产品 / 运营 / 管理方向求职者
+        </div>
+        <div class="card-price">
+          <div class="price-num">咨询定价</div>
+          <div class="price-unit">按需定制，欢迎私信</div>
+        </div>
+      </div>
+
+      <div class="card svc reveal">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">AI 效率培训</div>
+        <div class="card-body">
+          企业 / 团队 AI 办公实战培训<br>
+          飞书深度使用 · AI 工作流设计 · 提效工具定制
+        </div>
+        <div class="card-price">
+          <div class="price-num">200–2000 元</div>
+          <div class="price-unit">咨询定价 · 企业合作另议</div>
+        </div>
+      </div>
+
+      <div class="card svc reveal">
+        <div class="card-icon">🏸</div>
+        <div class="card-title">羽毛球私教</div>
+        <div class="card-body">
+          技术动作 · 战术意识 · 从零基础到进阶提升<br>
+          适合各年龄段学员，可小组授课
+        </div>
+        <div class="card-price">
+          <div class="price-num">100–300 元</div>
+          <div class="price-unit">/ 节 · 上海 · 小组课另议</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 <span class="footer-accent">MAYUE</span> · 上海</p>
+  <p style="font-size:13px;">
+    <a href="mailto:mayue.life@gmail.com" style="color:var(--accent);text-decoration:none;letter-spacing:0.01em;">mayue.life@gmail.com</a>
+  </p>
+  <p style="font-size:12px;color:var(--text-lo);">产品 · AI · 教育 · 摄影</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 70);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

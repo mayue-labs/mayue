@@ -1,0 +1,396 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>时间感知器</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#1b1b19;
+  --panel:#282826;
+  --panel-soft:#242422;
+  --line:#3a3a37;
+  --text:#f4f3ee;
+  --muted:#aaa7a0;
+  --muted-2:#d2d0c9;
+  --text-primary:var(--text);
+  --text-secondary:var(--muted-2);
+  --text-muted:var(--muted);
+  --green:#52d08c;
+  --green-dim:#1f8d62;
+  --red:#f06f5b;
+  --blue:#8eb8ef;
+  --violet:#a795ff;
+  --orange:#e87852;
+  --radius:18px;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{min-height:100%;background:var(--bg)}
+body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font-sans)}
+button,input{font:inherit}
+.root{width:min(100%,1040px);margin:0 auto;padding:clamp(20px,4vw,56px) clamp(16px,4vw,40px) 48px}
+.hero{margin-bottom:24px;text-align:center}
+.brand-copy{display:flex;flex-direction:column;align-items:center}
+.title{font-family:Georgia,"Times New Roman","Songti SC",serif;font-size:clamp(38px,7vw,76px);font-weight:400;line-height:.98;letter-spacing:0;color:var(--muted-2)}
+.subtitle{max-width:560px;color:var(--muted);font-size:14px;line-height:1.7;text-align:center;margin-top:12px}
+.app-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 28px 80px rgba(0,0,0,.24);overflow:hidden}
+.tabs{display:flex;gap:6px;padding:10px;justify-content:center;border-bottom:1px solid var(--line);background:rgba(255,255,255,.015);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:.72rem 1rem;border-radius:12px;font-size:14px;font-weight:560;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:color .15s,background .15s}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.045)}
+.tab.on{color:var(--text);background:#3a3a37}
+.content{padding:clamp(18px,3vw,34px)}
+.panel{display:none}.panel.on{display:block}
+
+.slider-row{display:grid;grid-template-columns:minmax(118px,170px) minmax(0,1fr) 64px;align-items:center;gap:14px;margin-bottom:1rem}
+.slider-label{font-size:13px;color:var(--muted);line-height:1.35}
+.slider-row input[type=range]{width:100%;accent-color:var(--orange);cursor:pointer}
+.slider-val{font-size:14px;font-weight:600;color:var(--text);text-align:right;white-space:nowrap}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:1.25rem 0 1.4rem}
+.kpi{background:var(--panel-soft);border:1px solid var(--line);border-radius:14px;padding:1rem}
+.kpi-n{font-size:clamp(22px,4vw,32px);font-weight:650;line-height:1;margin-bottom:6px;letter-spacing:0}
+.kpi-l{font-size:12px;color:var(--muted);line-height:1.4}
+.kpi.g .kpi-n{color:var(--green)}
+.kpi.r .kpi-n{color:var(--red)}
+.kpi.b .kpi-n{color:var(--blue)}
+
+.dot-meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+.dot-meta strong{color:var(--text);font-weight:650}
+.dot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(8px,1fr));gap:4px;align-items:center}
+.dot{width:100%;aspect-ratio:1;border-radius:3px;cursor:default;transition:opacity .1s}
+.dot:hover{opacity:.7}
+
+.legend-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-2)}
+.legend-sq{width:10px;height:10px;border-radius:3px}
+
+.bar-block{background:var(--panel-soft);border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.bar-title{font-size:13px;color:var(--muted-2);margin-bottom:.85rem}
+.brow{display:grid;grid-template-columns:70px minmax(0,1fr) 44px;align-items:center;gap:10px;margin-bottom:8px}
+.brow:last-child{margin-bottom:0}
+.blabel{font-size:12px;color:var(--muted);text-align:right}
+.btrack{height:8px;background:#3a3a37;border-radius:99px;overflow:hidden}
+.bfill{height:100%;border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+.bval{font-size:12px;color:var(--muted);text-align:right}
+
+.result-box{border-radius:16px;padding:1.25rem;text-align:center;margin-top:1rem}
+.result-box.g{background:rgba(82,208,140,.1);border:1px solid rgba(82,208,140,.35)}
+.result-box.r{background:rgba(240,111,91,.09);border:1px solid rgba(240,111,91,.28)}
+.result-big{font-size:clamp(36px,8vw,58px);font-weight:650;line-height:1;letter-spacing:0}
+.result-box.g .result-big{color:var(--green)}
+.result-box.r .result-big{color:var(--red)}
+.result-unit{font-size:13px;color:var(--muted);margin-top:8px}
+.result-sub{font-size:13px;color:var(--muted-2);margin-top:8px;line-height:1.55}
+
+.table-wrap{overflow-x:auto}
+.list-table{width:100%;border-collapse:collapse;min-width:620px}
+.list-table th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.list-table td{font-size:14px;color:var(--text);padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.list-table tr:last-child td{border-bottom:none}
+.list-table tr.human td{color:var(--green);font-weight:650;background:rgba(82,208,140,.06)}
+.rank-num{font-size:12px;color:var(--muted);font-weight:500}
+.bar-inline{display:block;height:8px;border-radius:99px;transition:width .3s}
+
+.section-head{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1.15rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+@media (max-width:720px){
+  .root{padding:22px 12px 34px}
+  .hero{margin-bottom:18px}
+  .subtitle{max-width:none;margin-top:10px;font-size:13px;text-align:center}
+  .app-card{border-radius:16px}
+  .content{padding:18px 14px}
+  .slider-row{grid-template-columns:1fr auto;gap:8px 12px;margin-bottom:1.1rem}
+  .slider-label{grid-column:1;font-size:13px}
+  .slider-val{grid-column:2}
+  .slider-row input[type=range]{grid-column:1 / -1;grid-row:2}
+  .kpi-grid{grid-template-columns:1fr;gap:9px}
+  .kpi{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:.9rem 1rem}
+  .kpi-n{font-size:26px;margin-bottom:0}
+  .kpi-l{text-align:right}
+  .dot-grid{grid-template-columns:repeat(auto-fill,minmax(6px,1fr));gap:3px}
+  .brow{grid-template-columns:56px minmax(0,1fr) 40px}
+  .blabel{font-size:11px}
+  .list-table{min-width:0}
+  .list-table th:nth-child(1),.list-table td:nth-child(1){display:none}
+  .list-table th,.list-table td{font-size:12px;padding:8px 6px}
+  .list-table th:nth-child(4),.list-table td:nth-child(4){width:34%}
+}
+
+@media (max-width:420px){
+  .tab{font-size:13px;padding:.68rem .8rem}
+  .title{font-size:38px}
+  .dot-grid{grid-template-columns:repeat(auto-fill,minmax(5px,1fr))}
+  .kpi{display:block}
+  .kpi-l{text-align:left;margin-top:5px}
+}
+</style>
+</head>
+<body>
+
+<div class="root">
+  <div class="hero">
+    <div class="brand-copy">
+      <h1 class="title">Time Perception</h1>
+      <p class="subtitle">把抽象的时间变成看得见、可拖动、可比较的尺度。</p>
+    </div>
+  </div>
+
+  <h2 class="sr-only">生命与时间感知工具：三个维度看你的时间</h2>
+
+  <div class="app-card">
+    <div class="tabs">
+      <button class="tab on" onclick="go(0)">今日时间</button>
+      <button class="tab" onclick="go(1)">生命点阵</button>
+      <button class="tab" onclick="go(2)">自由时间</button>
+      <button class="tab" onclick="go(3)">哺乳动物寿命</button>
+    </div>
+
+    <div class="content">
+      <div class="panel on" id="p0">
+    <div class="section-head">今日与年度时间感知 · 所在地 上海</div>
+
+    <div class="kpi-grid">
+      <div class="kpi b"><div class="kpi-n" id="today_date" style="font-size:clamp(18px,3.6vw,26px)">—</div><div class="kpi-l">今日日期</div></div>
+      <div class="kpi g"><div class="kpi-n" id="year_pct">—</div><div class="kpi-l" id="year_label">今年进度</div></div>
+      <div class="kpi r"><div class="kpi-n" id="today_pct">—</div><div class="kpi-l" id="today_label">今日进度</div></div>
+    </div>
+
+    <div class="section-head" style="margin-top:1.4rem">上海降雨统计</div>
+    <div class="kpi-grid">
+      <div class="kpi b"><div class="kpi-n" id="rain_2025">约 138</div><div class="kpi-l">2025 年下雨天数</div></div>
+      <div class="kpi b"><div class="kpi-n" id="rain_2026">约 82</div><div class="kpi-l" id="rain_2026_label">2026 年已下雨天数</div></div>
+    </div>
+    <div class="dot-meta" style="margin-top:10px">降雨天数为近似估算（基于上海年均降水日数 130–140 天），实际以气象部门公布为准；今日与年度进度每 30 秒自动刷新。</div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="section-head">输入出生年份</div>
+    <div class="slider-row" style="grid-template-columns:minmax(118px,170px) minmax(0,1fr) 90px">
+      <span class="slider-label">出生年份</span>
+      <input type="number" id="s_birth" min="1900" max="2026" value="1993" step="1" style="width:100%;background:var(--panel-soft);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:8px 12px;font-size:14px">
+      <span class="slider-val" id="v_age">—</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">预计寿命</span>
+      <input type="range" id="s_max" min="50" max="110" value="80" step="1">
+      <span class="slider-val"><span id="v_max">80</span> 岁</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi r"><div class="kpi-n" id="k_gone">—</div><div class="kpi-l">已流逝的年数</div></div>
+      <div class="kpi g"><div class="kpi-n" id="k_left">—</div><div class="kpi-l">剩余年数</div></div>
+      <div class="kpi b"><div class="kpi-n" id="k_pct">—</div><div class="kpi-l">已消耗生命占比</div></div>
+    </div>
+
+    <div class="legend-row">
+    <span class="legend-item"><span class="legend-sq" style="background:var(--green)"></span>剩余生命</span>
+    <span class="legend-item"><span class="legend-sq" style="background:#74736d"></span>已流逝</span>
+    </div>
+    <div class="dot-meta">每个点代表 <strong>1 个月</strong>，共 <span id="dot_total">—</span> 个月</div>
+    <div class="dot-grid" id="dot_grid0"></div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="section-head">设置日常时间分配</div>
+    <div class="slider-row">
+      <span class="slider-label">睡眠（含吃喝拉撒）</span>
+      <input type="range" id="s_sleep" min="6" max="16" value="9" step="0.5">
+      <span class="slider-val"><span id="v_sleep">9</span> h</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">工作（含通勤）</span>
+      <input type="range" id="s_work" min="0" max="16" value="10" step="0.5">
+      <span class="slider-val"><span id="v_work">10</span> h</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">工作日天数（每月）</span>
+      <input type="range" id="s_wdays" min="10" max="23" value="21.5" step="0.5">
+      <span class="slider-val"><span id="v_wdays">21.5</span> 天</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi g"><div class="kpi-n" id="k_fwd">—</div><div class="kpi-l">工作日每天自由</div></div>
+      <div class="kpi g"><div class="kpi-n" id="k_fwe">—</div><div class="kpi-l">周末每天自由</div></div>
+      <div class="kpi g"><div class="kpi-n" id="k_fwk">—</div><div class="kpi-l">每周合计自由</div></div>
+    </div>
+
+    <div class="result-box g">
+      <div class="result-big" id="r_year">—</div>
+      <div class="result-unit">每年真正自由的小时数 · <span id="r_days">—</span></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p3">
+    <div class="section-head">地球哺乳动物典型寿命排名（近似平均，从高到低）</div>
+    <div class="table-wrap">
+      <table class="list-table" id="mammal_table">
+        <thead><tr><th style="width:36px">#</th><th>物种</th><th>典型寿命</th><th style="width:40%">寿命对比</th></tr></thead>
+        <tbody id="mammal_body"></tbody>
+      </table>
+    </div>
+  </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+function go(i){
+  tabs.forEach((t,j)=>t.classList.toggle('on',i===j));
+  panels.forEach((p,j)=>p.classList.toggle('on',i===j));
+}
+
+function bind(sliderId, valId, cb){
+  const el = document.getElementById(sliderId);
+  const out = document.getElementById(valId);
+  el.addEventListener('input',()=>{out.textContent=el.value; cb && cb();});
+}
+function gv(id){return parseFloat(document.getElementById(id).value);}
+function set(id,v){document.getElementById(id).textContent=v;}
+function setW(id,pct){document.getElementById(id).style.width=Math.min(100,Math.round(pct))+'%';}
+
+function calcDots(){
+  const birth=gv('s_birth'), max=gv('s_max');
+  const nowY=new Date().getFullYear();
+  const cur=Math.max(0, nowY-birth);
+  set('v_age', cur+' 岁');
+  const totalM=Math.round(max*12);
+  const goneM=Math.round(cur*12);
+  const leftM=Math.max(0,totalM-goneM);
+  set('k_gone', cur+' 年');
+  set('k_left', Math.max(0,max-cur)+' 年');
+  set('k_pct', Math.round(Math.min(100,cur/max*100))+'%');
+  set('dot_total', totalM);
+  const grid=document.getElementById('dot_grid0');
+  const dots=[];
+  for(let i=0;i<totalM;i++){
+    const isLeft=i>=goneM;
+    const col=isLeft?'var(--green)':'#74736d';
+    const tip=isLeft?`第 ${i+1} 个月（剩余）`:`第 ${i+1} 个月（已逝）`;
+    dots.push(`<div class="dot" style="background:${col}" title="${tip}"></div>`);
+  }
+  grid.innerHTML=dots.join('');
+}
+
+function calcFree(){
+  const sleep=gv('s_sleep'), work=gv('s_work'), wdays=gv('s_wdays');
+  const fwd=Math.max(0,24-sleep-work);
+  const fwe=Math.max(0,24-sleep);
+  const wdPerWeek=wdays*12/52;
+  const wePerWeek=7-wdPerWeek;
+  const fwk=+(fwd*wdPerWeek+fwe*wePerWeek).toFixed(1);
+  const fyear=Math.round(fwk*52);
+
+  set('k_fwd', fwd.toFixed(1)+'h');
+  set('k_fwe', fwe.toFixed(1)+'h');
+  set('k_fwk', fwk+'h');
+  set('r_year', fyear.toLocaleString('zh-CN')+'h');
+  set('r_days', `约合 ${Math.round(fyear/24)} 天，或 ${Math.round(fyear/8)} 本书的时间`);
+}
+
+bind('s_birth','v_age',calcDots);
+bind('s_max','v_max',calcDots);
+bind('s_sleep','v_sleep',calcFree);
+bind('s_work','v_work',calcFree);
+bind('s_wdays','v_wdays',calcFree);
+
+const mammals=[
+  {name:'弓头鲸',latin:'Balaena mysticetus',years:150,note:'常可超过百年'},
+  {name:'人类',latin:'Homo sapiens',years:73,note:'全球预期寿命'},
+  {name:'抹香鲸',latin:'Physeter macrocephalus',years:60,note:'常见估计'},
+  {name:'非洲象',latin:'Loxodonta africana',years:56,note:'野外近似'},
+  {name:'座头鲸',latin:'Megaptera novaeangliae',years:50,note:'常见估计'},
+  {name:'亚洲象',latin:'Elephas maximus',years:48,note:'野外近似'},
+  {name:'虎鲸',latin:'Orcinus orca',years:45,note:'雌雄差异大'},
+  {name:'河马',latin:'Hippopotamus amphibius',years:45,note:'野外/圈养常见范围'},
+  {name:'大猩猩',latin:'Gorilla gorilla',years:35,note:'野外近似'},
+  {name:'黑猩猩',latin:'Pan troglodytes',years:33,note:'野外近似'},
+  {name:'驴',latin:'Equus africanus asinus',years:30,note:'家养常见范围'},
+  {name:'马',latin:'Equus ferus caballus',years:28,note:'家养常见范围'},
+  {name:'海象',latin:'Odobenus rosmarus',years:25,note:'野外近似'},
+  {name:'长颈鹿',latin:'Giraffa camelopardalis',years:25,note:'野外近似'},
+  {name:'猕猴',latin:'Macaca mulatta',years:25,note:'野外/圈养差异大'},
+  {name:'棕熊',latin:'Ursus arctos',years:25,note:'野外近似'},
+  {name:'野猪',latin:'Sus scrofa',years:20,note:'野外近似'},
+  {name:'北极熊',latin:'Ursus maritimus',years:18,note:'野外近似'},
+  {name:'象海豹',latin:'Mirounga angustirostris',years:17,note:'雌雄差异大'},
+  {name:'猫',latin:'Felis catus',years:15,note:'家猫常见中值'},
+  {name:'狮子',latin:'Panthera leo',years:14,note:'野外雌性更长'},
+  {name:'犬',latin:'Canis lupus familiaris',years:12,note:'犬种差异大'},
+  {name:'老虎',latin:'Panthera tigris',years:12,note:'野外近似'},
+  {name:'兔',latin:'Oryctolagus cuniculus',years:8,note:'家兔常见范围'},
+  {name:'大鼠',latin:'Rattus norvegicus',years:3,note:'实验/家养近似'},
+  {name:'小鼠',latin:'Mus musculus',years:2,note:'实验/家养近似'},
+];
+
+const sorted = mammals.sort((a,b)=>b.years-a.years);
+const maxY = sorted[0].years;
+const tbody = document.getElementById('mammal_body');
+tbody.innerHTML = sorted.map((m,i)=>{
+  const isHuman = m.name==='人类';
+  const barW = Math.round(m.years/maxY*100);
+  const barCol = isHuman ? 'var(--green)' : 'var(--blue)';
+  const cls = isHuman ? 'human' : '';
+  return `<tr class="${cls}">
+    <td><span class="rank-num">${i+1}</span></td>
+    <td>
+      <div style="font-weight:${isHuman?'500':'400'}">${m.name}</div>
+      <div style="font-size:11px;color:var(--text-muted);font-style:italic">${m.latin}</div>
+    </td>
+    <td style="white-space:nowrap">${m.years} 年${m.note?`<br><span style="font-size:10px;color:var(--text-muted)">${m.note}</span>`:''}</td>
+    <td><div class="bar-inline" style="background:${barCol};width:${barW}%"></div></td>
+  </tr>`;
+}).join('');
+
+function calcToday(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth()+1;
+  const d = now.getDate();
+  const mm = String(m).padStart(2,'0');
+  const dd = String(d).padStart(2,'0');
+  set('today_date', y+'年'+mm+'月'+dd+'日');
+
+  // 今年进度
+  const yStart = new Date(y,0,1);
+  const yEnd = new Date(y+1,0,1);
+  const yearMs = yEnd - yStart;
+  const passedMs = now - yStart;
+  const yearPct = passedMs/yearMs*100;
+  const dayMs = 86400000;
+  const totalDays = Math.round(yearMs/dayMs);
+  const passedDays = Math.floor(passedMs/dayMs) + 1; // 含今天
+  const leftDays = totalDays - passedDays;
+  set('year_pct', yearPct.toFixed(1)+'%');
+  set('year_label', `今年进度 · 剩 ${leftDays} 天`);
+
+  // 今日进度
+  const h = now.getHours();
+  const mi = now.getMinutes();
+  const s = now.getSeconds();
+  const dayPassedSec = h*3600 + mi*60 + s;
+  const dayPct = dayPassedSec/86400*100;
+  const leftH = (24 - dayPassedSec/3600).toFixed(1);
+  set('today_pct', dayPct.toFixed(1)+'%');
+  set('today_label', `今日进度 · 剩 ${leftH}h`);
+
+  // 2026 剩余可能下雨天数 = 2025 总雨天数 - 2026 已下雨天数
+  const rain2025 = 138;
+  const rain2026 = 82;
+  const rainLeft = rain2025 - rain2026;
+  set('rain_2026_label', `2026 年已下雨天数 · 剩余约 ${rainLeft} 天`);
+}
+
+calcDots();
+calcFree();
+calcToday();
+setInterval(calcToday, 30000);
+</script>
+</body>
+</html>

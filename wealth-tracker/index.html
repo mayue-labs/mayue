@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>财务数据录入</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E4E7ED;
+    --border-focus: #C66240;
+    --text-primary: #1A1D23;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --accent: #C66240;
+    --accent-light: #FBF1EC;
+    --accent-hover: #B05535;
+    --danger: #E84B3B;
+    --danger-light: #FEF2F1;
+    --success: #16A34A;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 28px; height: 28px;
+    background: #C66240;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 700;
+  }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-date { font-size: 12px; color: var(--text-muted); }
+
+  /* Main */
+  .main {
+    padding: 24px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Summary bar */
+  .summary-bar {
+    background: var(--accent-light);
+    border: 1px solid #EAC4B2;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .summary-item {
+    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; min-width: 120px;
+    padding: 0 16px;
+    border-right: 1px solid #EAC4B2;
+  }
+  .summary-item:first-child { padding-left: 0; }
+  .summary-item:last-child { border-right: none; }
+  .s-label { font-size: 11px; color: var(--accent); font-weight: 500; }
+  .s-value { font-size: 18px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Section */
+  .section { margin-bottom: 24px; }
+  .section:last-of-type { margin-bottom: 0; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 12px; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+
+  /* Form grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-grid.cols-2m { grid-template-columns: 1fr 1fr; }
+    .summary-item { min-width: 100px; padding: 0 10px; }
+    .s-value { font-size: 15px; }
+    .main { padding: 16px; }
+    .card { padding: 16px; }
+    .header { padding: 0 16px; }
+    .other-row { grid-template-columns: 1fr 1fr auto !important; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .field input {
+    height: 38px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: 7px;
+    font-size: 13px; color: var(--text-primary);
+    background: var(--bg); outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit; width: 100%;
+  }
+  .field input:focus {
+    border-color: var(--border-focus); background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(198,98,64,0.1);
+  }
+  .field input::placeholder { color: var(--text-muted); }
+  .field input[readonly] { background: #F0F1F3; color: var(--text-muted); cursor: default; }
+
+  /* Amount */
+  .amount-wrap { position: relative; }
+  .amount-wrap .currency {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 12px; color: var(--text-muted); pointer-events: none;
+  }
+  .amount-wrap input { padding-left: 20px; }
+
+  /* Other account rows */
+  .other-list { display: flex; flex-direction: column; gap: 8px; }
+  .other-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 8px; align-items: end;
+    padding: 10px 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .other-row .field label { font-size: 11px; }
+
+  .remove-btn {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface); color: var(--text-muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.15s; flex-shrink: 0; align-self: flex-end;
+  }
+  .remove-btn:hover { background: var(--danger-light); border-color: var(--danger); color: var(--danger); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none;
+    transition: all 0.15s; font-family: inherit;
+  }
+  .btn-ghost {
+    background: transparent; border: 1px dashed var(--border);
+    color: var(--text-secondary);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .btn-accent {
+    background: #C66240; color: white;
+    padding: 9px 22px; font-size: 14px; font-weight: 600;
+  }
+  .btn-accent:hover { background: #B05535; }
+  .btn-outline {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
+
+  /* Export row */
+  .export-row {
+    display: flex; gap: 10px; align-items: center;
+    padding-top: 20px; margin-top: 20px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .export-hint { font-size: 12px; color: var(--text-muted); flex: 1; min-width: 160px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #1A1D23; color: white;
+    padding: 10px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.2s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">马</div>
+    <span class="header-title">财务数据录入</span>
+  </div>
+  <span class="header-date" id="currentDate"></span>
+</div>
+
+<div class="main">
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="summary-item">
+      <span class="s-label">总资产（含公积金）</span>
+      <span class="s-value" id="total-all">¥0</span>
+    </div>
+    <div class="summary-item">
+      <span class="s-label">流动资产</span>
+      <span class="s-value" id="total-liquid">¥0</span>
+    </div>
+    <div class="summary-item">
+      <span class="s-label">公积金 + 医保</span>
+      <span class="s-value" id="total-gjj">¥0</span>
+    </div>
+  </div>
+
+  <!-- 余额宝 -->
+  <div class="card">
+    <div class="section">
+      <div class="section-header"><span class="section-title">余额宝</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>活期资产</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yeb-huoqi" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+        <div class="field">
+          <label>稳健理财</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yeb-wenjian" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+        <div class="field">
+          <label>进阶理财</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yeb-jinjie" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 微信理财通 -->
+  <div class="card">
+    <div class="section">
+      <div class="section-header"><span class="section-title">微信理财通</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>活期理财</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="wx-huoqi" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+        <div class="field">
+          <label>其他</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="wx-other" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 公积金 & 医保 -->
+  <div class="card">
+    <div class="section">
+      <div class="section-header"><span class="section-title">公积金</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>基本账户余额</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="gjj-base" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+        <div class="field">
+          <label>补充账户余额</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="gjj-supp" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+        <div class="field">
+          <label>月缴金额</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="gjj-monthly" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-header"><span class="section-title">医保账户</span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label>个人账户余额</label>
+          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yibao" placeholder="0" oninput="calcTotals()"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 其他账户 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">其他账户</span>
+        <button class="btn btn-ghost" onclick="addOtherAccount()">＋ 添加</button>
+      </div>
+      <div class="other-list" id="other-accounts-list"></div>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="export-row" style="border-top:none;padding-top:0;margin-top:0">
+    <span class="export-hint">填写完成后导出 Markdown，粘贴到 Claude Project</span>
+    <button class="btn btn-outline" onclick="fillSample()">填入示例数据</button>
+    <button class="btn btn-accent" onclick="exportAssets()">导出 Markdown</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Utils
+function fmt(n) {
+  if (!n && n !== 0) return '¥0';
+  return '¥' + Number(n).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function fmtMd(n) { return fmt(n); }
+function val(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('currentDate').textContent =
+  new Date().toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'});
+
+// Totals
+function calcTotals() {
+  const yeb = val('yeb-huoqi') + val('yeb-wenjian') + val('yeb-jinjie');
+  const wx = val('wx-huoqi') + val('wx-other');
+  let others = 0;
+  document.querySelectorAll('.other-amount').forEach(i => others += parseFloat(i.value) || 0);
+  const liquid = yeb + wx + others;
+  const gjj = val('gjj-base') + val('gjj-supp');
+  const yibao = val('yibao');
+  document.getElementById('total-liquid').textContent = fmt(liquid);
+  document.getElementById('total-gjj').textContent = fmt(gjj + yibao);
+  document.getElementById('total-all').textContent = fmt(liquid + gjj + yibao);
+}
+
+// Other accounts
+function addOtherAccount(name='', amount='') {
+  const id = 'oa' + Date.now();
+  const list = document.getElementById('other-accounts-list');
+  const row = document.createElement('div');
+  row.className = 'other-row'; row.id = id;
+  row.innerHTML = `
+    <div class="field"><label>账户名称</label><input type="text" placeholder="如：招商银行活期" value="${name}"></div>
+    <div class="field"><label>余额</label><div class="amount-wrap"><span class="currency">¥</span><input type="number" class="other-amount" placeholder="0" value="${amount}" oninput="calcTotals()"></div></div>
+    <button class="remove-btn" onclick="document.getElementById('${id}').remove();calcTotals()">×</button>
+  `;
+  list.appendChild(row);
+}
+
+// Export
+function exportAssets() {
+  const now = new Date().toLocaleDateString('zh-CN');
+  const yebHuoqi = val('yeb-huoqi');
+  const yebWenjian = val('yeb-wenjian');
+  const yebJinjie = val('yeb-jinjie');
+  const wxHuoqi = val('wx-huoqi');
+  const wxOther = val('wx-other');
+  const gjjBase = val('gjj-base');
+  const gjjSupp = val('gjj-supp');
+  const gjjMonthly = val('gjj-monthly');
+  const yibao = val('yibao');
+
+  let otherRows = '';
+  let otherTotal = 0;
+  document.querySelectorAll('#other-accounts-list .other-row').forEach(row => {
+    const name = row.querySelector('input[type=text]').value || '其他账户';
+    const amt = parseFloat(row.querySelector('.other-amount').value) || 0;
+    otherTotal += amt;
+    otherRows += `| ${name} | 其他 | ${fmtMd(amt)} |\n`;
+  });
+
+  const liquid = yebHuoqi + yebWenjian + yebJinjie + wxHuoqi + wxOther + otherTotal;
+  const gjj = gjjBase + gjjSupp;
+  const total = liquid + gjj + yibao;
+
+  let md = `# 账户资产数据\n> 更新时间：${now}\n\n`;
+  md += `## 资产总览\n\n| 账户 | 类型 | 金额 |\n|------|------|------|\n`;
+  if (yebHuoqi) md += `| 余额宝 · 活期 | 现金类 | ${fmtMd(yebHuoqi)} |\n`;
+  if (yebWenjian) md += `| 余额宝 · 稳健理财 | 低风险理财 | ${fmtMd(yebWenjian)} |\n`;
+  if (yebJinjie) md += `| 余额宝 · 进阶理财 | 中低风险理财 | ${fmtMd(yebJinjie)} |\n`;
+  if (wxHuoqi) md += `| 微信理财通 · 活期 | 现金类 | ${fmtMd(wxHuoqi)} |\n`;
+  if (wxOther) md += `| 微信理财通 · 其他 | 现金类 | ${fmtMd(wxOther)} |\n`;
+  if (otherRows) md += otherRows;
+  if (gjjBase) md += `| 公积金 · 基本账户 | 公积金 | ${fmtMd(gjjBase)} |\n`;
+  if (gjjSupp) md += `| 公积金 · 补充账户 | 公积金 | ${fmtMd(gjjSupp)} |\n`;
+  if (yibao) md += `| 医保个人账户 | 医保 | ${fmtMd(yibao)} |\n`;
+  md += `| **合计** | | **${fmtMd(total)}** |\n\n`;
+  md += `## 关键指标\n\n`;
+  md += `- 流动资产：${fmtMd(liquid)}\n`;
+  md += `- 公积金合计：${fmtMd(gjj)}\n`;
+  if (gjjMonthly) md += `- 公积金月缴：${fmtMd(gjjMonthly)}/月\n`;
+  if (yibao) md += `- 医保个人账户：${fmtMd(yibao)}\n`;
+  md += `- 总资产：${fmtMd(total)}\n`;
+
+  navigator.clipboard.writeText(md).then(() => showToast('✓ 已复制到剪贴板'));
+}
+
+// Sample data
+function fillSample() {
+  document.getElementById('yeb-huoqi').value = 735738;
+  document.getElementById('yeb-wenjian').value = 325000;
+  document.getElementById('yeb-jinjie').value = 53700;
+  document.getElementById('wx-huoqi').value = 430363;
+  document.getElementById('wx-other').value = '';
+  document.getElementById('gjj-base').value = 135122;
+  document.getElementById('gjj-supp').value = 9911;
+  document.getElementById('gjj-monthly').value = 1120;
+  document.getElementById('yibao').value = 3500;
+  calcTotals();
+  showToast('已填入示例数据');
+}
+</script>
+</body>
+</html>

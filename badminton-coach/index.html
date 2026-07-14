@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>羽毛球教学工具</title>
+<style>
+  :root {
+    --bg: #F9F8F6;
+    --bg-card: #FFFFFF;
+    --text-primary: #1A1A18;
+    --text-secondary: #6B6B67;
+    --text-muted: #9B9B97;
+    --accent: #E8924A;
+    --accent-light: #FDF0E6;
+    --accent-dark: #C4722E;
+    --border: #E8E8E4;
+    --border-strong: #D0D0CA;
+    --court-green: #4A7C59;
+    --court-line: #F0F0E8;
+    --player-a: #E8924A;
+    --player-b: #4A7C9B;
+    --shuttle: #F5C842;
+    --radius: 10px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .site-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+  .site-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    font-weight: normal;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .site-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  /* Nav Tabs */
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text-primary); background: var(--bg); }
+  .nav-tab.active {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-weight: 500;
+  }
+
+  /* Main */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Section titles */
+  .section-title {
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: normal;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+  .section-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* Card grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: box-shadow 0.15s;
+  }
+  .card:hover { box-shadow: var(--shadow); }
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .card-tags {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  /* Grip section */
+  .grip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .grip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .grip-icon {
+    width: 56px; height: 56px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .grip-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 5px;
+  }
+  .grip-use {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .grip-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+
+  /* Footwork section */
+  .footwork-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .fw-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .fw-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fw-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .badge-net { background: #E6F3EC; color: #2D7A4F; }
+  .badge-mid { background: #FDF0E6; color: #C4722E; }
+  .badge-rear { background: #E6EEF7; color: #2D5F8A; }
+  .badge-all { background: #F0EBF7; color: #6A3DA8; }
+  .fw-scene {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+  .fw-steps {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+  .block-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ===== COURT TOOL ===== */
+  .court-tool {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .court-toolbar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toolbar-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .btn-group {
+    display: flex;
+    gap: 4px;
+  }
+  .btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--border); }
+  .btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 500;
+  }
+  .btn-danger {
+    border-color: #E8A0A0;
+    color: #C04040;
+  }
+  .btn-danger:hover { background: #FEF0F0; }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .court-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  #court-canvas {
+    border-radius: 6px;
+    cursor: default;
+    max-width: 100%;
+    touch-action: none;
+  }
+
+  .court-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .court-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 8px;
+    background: var(--bg);
+    border-radius: 6px;
+    width: 100%;
+  }
+
+  /* Instructions panel */
+  .instructions {
+    background: var(--accent-light);
+    border: 1px solid #F5D5B5;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--accent-dark);
+  }
+  .instructions strong { color: var(--accent-dark); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .main { padding: 20px 16px; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 6px 10px; font-size: 13px; }
+    .site-title { font-size: 15px; }
+    .section-title { font-size: 19px; }
+    .header-inner { height: 50px; }
+    .court-toolbar { gap: 8px; }
+    .btn { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="site-title">
+      <span class="dot"></span>
+      羽毛球教学工具
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('tech')">技术</button>
+      <button class="nav-tab" onclick="switchTab('footwork')">步伐</button>
+      <button class="nav-tab" onclick="switchTab('court')">场地</button>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ===== TAB: 技术 ===== -->
+  <div id="tab-tech" class="tab-panel active">
+    <h1 class="section-title">击球技术</h1>
+    <p class="section-subtitle">按区域划分的核心技术体系</p>
+
+    <!-- 握拍 -->
+    <div class="block-title">握拍方式</div>
+    <div class="grip-grid">
+      <div class="grip-card">
+        <div class="grip-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <!-- Racket handle simplified -->
+            <rect x="20" y="8" width="8" height="28" rx="4" fill="#E8E8E4" stroke="#C0C0BA" stroke-width="1.5"/>
+            <rect x="22" y="10" width="4" height="20" rx="2" fill="#E8924A" opacity="0.4"/>
+            <!-- fingers -->
+            <path d="M12 22 Q10 18 14 16 Q16 20 18 22" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M12 26 Q8 22 12 19 Q15 22 16 26" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M13 31 Q9 28 12 24 Q15 27 15 31" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M16 35 Q13 33 14 29 Q17 31 17 35" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="grip-name">九字握法（正手握拍）</div>
+        <div class="grip-use">适用场景：后场高远球、杀球、正手网前挑球</div>
+        <div class="grip-note">虎口对准拍柄窄面，拇指贴宽面，四指自然弯曲环握，形如持锤。握拍非抓死，击球瞬间收紧。</div>
+      </div>
+      <div class="grip-card">
+        <div class="grip-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="20" y="8" width="8" height="28" rx="4" fill="#E8E8E4" stroke="#C0C0BA" stroke-width="1.5"/>
+            <rect x="22" y="10" width="4" height="20" rx="2" fill="#4A7C9B" opacity="0.4"/>
+            <path d="M12 22 Q10 18 14 16 Q16 20 18 22" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M12 26 Q8 22 12 19 Q15 22 16 26" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M13 31 Q9 28 12 24 Q15 27 15 31" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M16 35 Q13 33 14 29 Q17 31 17 35" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="grip-name">全式握法</div>
+        <div class="grip-use">适用场景：大力扣杀、重击后场</div>
+        <div class="grip-note">五指全部包握拍柄，握持最稳定，爆发力最强，但灵活性相对较低，主要用于需要最大力量输出的击球。</div>
+      </div>
+      <div class="grip-card">
+        <div class="grip-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="20" y="8" width="8" height="28" rx="4" fill="#E8E8E4" stroke="#C0C0BA" stroke-width="1.5"/>
+            <rect x="22" y="10" width="4" height="20" rx="2" fill="#4A7C59" opacity="0.5"/>
+            <path d="M28 20 Q33 17 35 21 Q31 23 29 24" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M29 25 Q35 23 36 27 Q31 28 29 28" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M28 30 Q34 29 35 33 Q30 33 28 32" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M27 35 Q31 35 32 38 Q28 37 27 36" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="grip-name">反手握法</div>
+        <div class="grip-use">适用场景：反手后场球、反手网前搓球</div>
+        <div class="grip-note">拇指平贴于拍柄宽面（内侧），其余手指环握。拇指作为主力手指发力，可发出较强的反手力量。</div>
+      </div>
+      <div class="grip-card">
+        <div class="grip-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="20" y="8" width="8" height="28" rx="4" fill="#E8E8E4" stroke="#C0C0BA" stroke-width="1.5"/>
+            <rect x="22" y="10" width="4" height="20" rx="2" fill="#8B5CF6" opacity="0.4"/>
+            <path d="M14 26 Q10 21 14 18 Q17 22 19 26" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M14 31 Q9 27 13 23 Q16 27 16 31" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M15 36 Q11 33 13 29 Q16 32 16 36" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+            <path d="M18 38 Q15 37 15 33 Q18 35 19 38" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="grip-name">侧棱握法</div>
+        <div class="grip-use">适用场景：反手过渡、被动防守时快速转换</div>
+        <div class="grip-note">虎口对准拍柄侧棱，介于正反手握法之间。不需要完全转换握法即可应对左右来球，适合临时过渡用。</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 网前技术 -->
+    <div class="block-title">网前技术</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">网前</div>
+        <div class="card-title">放网（搓球）</div>
+        <div class="card-desc">球贴网而过，落点近网。以拇指或食指控制力度，拍面倾斜，轻触球托，使球旋转翻滚过网。</div>
+        <div class="card-tags">
+          <span class="tag">控制</span><span class="tag">精准</span><span class="tag">旋转</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">网前</div>
+        <div class="card-title">推球</div>
+        <div class="card-desc">球过网后压向对方后场两底角。握拍稍松，利用手腕发力快速推送，弧度低平，速度快。</div>
+        <div class="card-tags">
+          <span class="tag">速度</span><span class="tag">压迫</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">网前</div>
+        <div class="card-title">勾对角</div>
+        <div class="card-desc">将对方推来的直线球，用勾拍动作回击到对角网前。拍面内旋或外旋带出横向分量，是网前极具迷惑性的技术。</div>
+        <div class="card-tags">
+          <span class="tag">变向</span><span class="tag">迷惑</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">网前</div>
+        <div class="card-title">扑球</div>
+        <div class="card-desc">对方球过网高度偏高时，快速上网扑压，使球快速下压落入对方场地。动作要求起步快、判断早。</div>
+        <div class="card-tags">
+          <span class="tag">主动</span><span class="tag">攻击</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">网前</div>
+        <div class="card-title">挑球</div>
+        <div class="card-desc">被动情况下将近网低球挑向对方后场。正手挑球借助手腕爆发力，反手挑球依靠拇指顶推。</div>
+        <div class="card-tags">
+          <span class="tag">防守</span><span class="tag">转换</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 中场技术 -->
+    <div class="block-title">中场技术</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">中场</div>
+        <div class="card-title">平抽球</div>
+        <div class="card-desc">平行于地面、快速穿越网上方的击球。要求手腕爆发力强，拍面保持垂直，击球点在身体侧前方。</div>
+        <div class="card-tags">
+          <span class="tag">快攻</span><span class="tag">速度</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">中场</div>
+        <div class="card-title">平推球</div>
+        <div class="card-desc">介于平抽和高球之间，弧度稍高但速度较快，使对方难以判断落点。</div>
+        <div class="card-tags">
+          <span class="tag">变化</span><span class="tag">压迫</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">中场</div>
+        <div class="card-title">防守挡球</div>
+        <div class="card-desc">被动接杀球时的基本技术。拍面角度控制是关键，可挡直线或对角，落点尽量靠近对方场地两侧。</div>
+        <div class="card-tags">
+          <span class="tag">防守</span><span class="tag">落点</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 后场技术 -->
+    <div class="block-title">后场技术</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">后场</div>
+        <div class="card-title">高远球</div>
+        <div class="card-desc">击打至对方后场底线附近的高弧度球。转体、引拍、挥拍、随挥四个环节环环相扣，是后场最基础的进攻转换技术。</div>
+        <div class="card-tags">
+          <span class="tag">基础</span><span class="tag">过渡</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">后场</div>
+        <div class="card-title">杀球（扣杀）</div>
+        <div class="card-desc">从高点向下猛力扣击，是最强进攻手段。要求髋部转动带动大臂，大臂带小臂，手腕最后鞭打发力，击球点高且在头顶前方。</div>
+        <div class="card-tags">
+          <span class="tag">进攻</span><span class="tag">爆发</span><span class="tag">关键</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">后场</div>
+        <div class="card-title">吊球</div>
+        <div class="card-desc">由后场轻吊至对方网前的技术。以杀球动作引导，击球瞬间减速，使球贴网而落。直线吊和斜线吊均常用。</div>
+        <div class="card-tags">
+          <span class="tag">迷惑</span><span class="tag">调动</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">后场</div>
+        <div class="card-title">反手后场球</div>
+        <div class="card-desc">处理反手位后场球的技术。以反手握拍，背对来球方向起跳，拇指顶推发力。是技术难度较高的后场技术。</div>
+        <div class="card-tags">
+          <span class="tag">难点</span><span class="tag">反手</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">后场</div>
+        <div class="card-title">头顶球</div>
+        <div class="card-desc">处理正手侧头顶位置来球，以正手击球方式向反手区域击出。可打高远、杀球或吊球。</div>
+        <div class="card-tags">
+          <span class="tag">头顶位</span><span class="tag">灵活</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 步伐 ===== -->
+  <div id="tab-footwork" class="tab-panel">
+    <h1 class="section-title">移动步伐</h1>
+    <p class="section-subtitle">六大区域对应步伐体系，以中心位置为基点出发与回位</p>
+
+    <div class="block-title">基础移动方式</div>
+    <div class="footwork-grid">
+      <div class="fw-card">
+        <div class="fw-name">并步 <span class="fw-badge badge-all">全场</span></div>
+        <div class="fw-scene">最基础的移动方式，两脚并拢交替移动，步幅小但稳定，适合小范围调整位置。</div>
+        <div class="fw-steps">⚡ 脚步紧，重心稳，适合网前微调</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">交叉步 <span class="fw-badge badge-all">全场</span></div>
+        <div class="fw-scene">一脚在前、一脚交叉跨越的步法，移动距离大，是最常用的主力步法。</div>
+        <div class="fw-steps">⚡ 覆盖距离最大，正反手侧移均用</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">垫步 <span class="fw-badge badge-all">全场</span></div>
+        <div class="fw-scene">在主力步后用小垫步调整身体重心与击球点的距离，保证击球动作稳定。</div>
+        <div class="fw-steps">⚡ 通常作为击球前的最后微调步</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">蹬跨步 <span class="fw-badge badge-mid">中场</span></div>
+        <div class="fw-scene">以一脚蹬地、另一脚大幅跨出的动作，适合快速向侧方移动接平抽球。</div>
+        <div class="fw-steps">⚡ 中场两侧接快攻球最常用</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="block-title">网前步伐</div>
+    <div class="footwork-grid">
+      <div class="fw-card">
+        <div class="fw-name">上网步法 <span class="fw-badge badge-net">网前</span></div>
+        <div class="fw-scene">从中心位置快速移动至网前。正手侧：右脚在前起步，弓步或跨步扑网。反手侧：转体后左脚在前或交叉步至网前。</div>
+        <div class="fw-steps">✅ 关键：判断早，起步快，到位后制动稳</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">后退步法（网前撤退） <span class="fw-badge badge-net">网前</span></div>
+        <div class="fw-scene">网前击球后迅速后退回中心位置，以交叉步或并步退回，保持面朝网。</div>
+        <div class="fw-steps">✅ 不要转身跑，侧滑后撤更快</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="block-title">后场步伐</div>
+    <div class="footwork-grid">
+      <div class="fw-card">
+        <div class="fw-name">正手后退步法 <span class="fw-badge badge-rear">后场</span></div>
+        <div class="fw-scene">移动到正手后场底角。起跳前用1~3步交叉步快速后退，最后以右脚（右手持拍者）蹬地起跳击球。</div>
+        <div class="fw-steps">✅ 最后一步：右脚垫步蹬跳，利用转体带动挥拍</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">头顶后退步法 <span class="fw-badge badge-rear">后场</span></div>
+        <div class="fw-scene">处理头顶区域（反手侧后场）的移动。转体后退，以交叉步向左后方移动，最后右脚制动蹬跳。</div>
+        <div class="fw-steps">✅ 转体幅度大，提前判断来球落点</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">反手后退步法 <span class="fw-badge badge-rear">后场</span></div>
+        <div class="fw-scene">背对来球方向向反手后场移动。转身后以交叉步快速后退，是技术难度最高的后场步法。</div>
+        <div class="fw-steps">⚠ 难点：转身时机与步伐协调，避免失去平衡</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="block-title">回位与综合步伐</div>
+    <div class="footwork-grid">
+      <div class="fw-card">
+        <div class="fw-name">回中心步法 <span class="fw-badge badge-all">全场</span></div>
+        <div class="fw-scene">每次击球后迅速回到中心位置（单打约为场地中央偏后）。利用蹬地反弹力量加速回位，是步伐体系的核心环节。</div>
+        <div class="fw-steps">✅ 击球后立即启动回位，不能等球飞出去再动</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">起跳杀球步法 <span class="fw-badge badge-rear">后场</span></div>
+        <div class="fw-scene">在移动过程中起跳，在最高点击球。以快速移动步为基础，最后一步蹬地爆发起跳，击球后落地制动。</div>
+        <div class="fw-steps">⚡ 腾空时间短，落地重心要稳</div>
+      </div>
+      <div class="fw-card">
+        <div class="fw-name">防守站位步法 <span class="fw-badge badge-mid">中场</span></div>
+        <div class="fw-scene">接对方杀球时的预备姿态。两脚平行稍宽于肩，重心低，保持弹性微屈，随时准备向两侧蹬跨。</div>
+        <div class="fw-steps">✅ 身体微前倾，重心偏前，反应更快</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 场地 ===== -->
+  <div id="tab-court" class="tab-panel">
+    <h1 class="section-title">战术场地工具</h1>
+    <p class="section-subtitle">拖拽球员，点击选中后设置落点，查看飞行路线</p>
+
+    <div class="court-tool">
+      <div class="court-toolbar">
+        <div class="toolbar-group">
+          <span class="toolbar-label">模式</span>
+          <div class="btn-group">
+            <button class="btn active" id="btn-singles" onclick="setMode('singles')">单打</button>
+            <button class="btn" id="btn-doubles" onclick="setMode('doubles')">双打</button>
+          </div>
+        </div>
+        <div class="toolbar-group">
+          <span class="toolbar-label">操作</span>
+          <div class="btn-group">
+            <button class="btn btn-ghost" id="btn-clearlines" onclick="clearLines()">清空路线</button>
+            <button class="btn btn-danger" onclick="resetAll()">重置全部</button>
+          </div>
+        </div>
+        <div class="toolbar-group" style="margin-left:auto">
+          <span style="font-size:12px; color:var(--text-muted);" id="status-text">选中球员后点击场地设置落点</span>
+        </div>
+      </div>
+
+      <div class="court-wrap">
+        <canvas id="court-canvas" width="500" height="760"></canvas>
+        <div class="court-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--player-a)"></div>己方球员（橙）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--player-b)"></div>对方球员（蓝）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--shuttle)"></div>羽毛球落点</div>
+        </div>
+        <div class="court-hint" id="hint-text">
+          💡 拖拽球员至任意位置 → 点击选中球员（发光显示）→ 点击对方场地设置落点 → 飞行弧线自动生成
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===== Tab switching =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'court') { setTimeout(initCourt, 50); }
+}
+
+// ===== Court Tool =====
+const canvas = document.getElementById('court-canvas');
+const ctx = canvas.getContext('2d');
+
+let mode = 'singles'; // singles | doubles
+let players = [];
+let selectedPlayer = null;
+let shuttleTrails = []; // [{from, to}]
+let draggingPlayer = null;
+let dragOffset = {x:0, y:0};
+let courtInited = false;
+let canvasScale = 1;
+
+// Court geometry (in canvas coords, 500x760)
+const COURT = {
+  left: 50, right: 450,
+  top: 30, bottom: 730,
+  net: 380, // Y position of net (from top)
+  // Net is at y=380 which divides top half (our side) and bottom half (opponent)
+};
+// Actually let's define: top = opponent side (blue), bottom = our side (orange)
+// net Y = midpoint
+COURT.net = Math.round((COURT.top + COURT.bottom) / 2);
+// Lines
+COURT.width = COURT.right - COURT.left; // 400
+COURT.height = COURT.bottom - COURT.top; // 700
+COURT.cx = (COURT.left + COURT.right) / 2; // 250
+
+function defaultPlayers() {
+  if (mode === 'singles') {
+    return [
+      { id: 0, x: COURT.cx, y: COURT.bottom - 100, side: 'bottom', color: '#E8924A', label: 'A', name: '己方' },
+      { id: 1, x: COURT.cx, y: COURT.top + 100, side: 'top', color: '#4A7C9B', label: 'B', name: '对方' },
+    ];
+  } else {
+    return [
+      { id: 0, x: COURT.cx - 70, y: COURT.bottom - 90, side: 'bottom', color: '#E8924A', label: 'A1', name: '己方1' },
+      { id: 1, x: COURT.cx + 70, y: COURT.bottom - 150, side: 'bottom', color: '#E8924A', label: 'A2', name: '己方2' },
+      { id: 2, x: COURT.cx - 70, y: COURT.top + 90, side: 'top', color: '#4A7C9B', label: 'B1', name: '对方1' },
+      { id: 3, x: COURT.cx + 70, y: COURT.top + 150, side: 'top', color: '#4A7C9B', label: 'B2', name: '对方2' },
+    ];
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-singles').classList.toggle('active', m === 'singles');
+  document.getElementById('btn-doubles').classList.toggle('active', m === 'doubles');
+  players = defaultPlayers();
+  selectedPlayer = null;
+  shuttleTrails = [];
+  draw();
+  updateStatus('选中球员后点击场地设置落点');
+}
+
+function resetAll() {
+  players = defaultPlayers();
+  selectedPlayer = null;
+  shuttleTrails = [];
+  draw();
+  updateStatus('已重置');
+}
+
+function clearLines() {
+  shuttleTrails = [];
+  draw();
+  updateStatus('路线已清空');
+}
+
+function updateStatus(text) {
+  document.getElementById('status-text').textContent = text;
+}
+
+// ===== Draw =====
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  drawCourt();
+  // Draw trails first (under players)
+  for (const trail of shuttleTrails) {
+    drawArc(trail.from, trail.to, trail.color);
+  }
+  // Draw players
+  for (const p of players) {
+    drawPlayer(p, p === selectedPlayer);
+  }
+}
+
+function drawCourt() {
+  const { left, right, top, bottom, net, cx } = COURT;
+
+  // Background
+  ctx.fillStyle = '#3D6B4A';
+  ctx.beginPath();
+  ctx.roundRect(left - 10, top - 10, right - left + 20, bottom - top + 20, 6);
+  ctx.fill();
+
+  // Court surface
+  ctx.fillStyle = '#4A7C59';
+  ctx.fillRect(left, top, right - left, bottom - top);
+
+  // Court lines style
+  ctx.strokeStyle = 'rgba(240,240,220,0.85)';
+  ctx.lineWidth = 1.5;
+
+  // Outer boundary
+  ctx.strokeRect(left, top, right - left, bottom - top);
+
+  // Singles sidelines (inner) - 40px from each edge
+  const sl = left + 35;
+  const sr = right - 35;
+  ctx.beginPath();
+  ctx.moveTo(sl, top); ctx.lineTo(sl, bottom);
+  ctx.moveTo(sr, top); ctx.lineTo(sr, bottom);
+  ctx.stroke();
+
+  // Net line
+  ctx.strokeStyle = 'rgba(240,240,220,0.95)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(left, net); ctx.lineTo(right, net);
+  ctx.stroke();
+
+  // Net post dots
+  ctx.fillStyle = 'rgba(240,240,220,0.9)';
+  ctx.beginPath(); ctx.arc(left, net, 4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(right, net, 4, 0, Math.PI*2); ctx.fill();
+
+  // Center line
+  ctx.strokeStyle = 'rgba(240,240,220,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(cx, top); ctx.lineTo(cx, bottom);
+  ctx.stroke();
+
+  // Short service line (doubles) - 200mm from net = ~50px
+  const ssl = 50;
+  ctx.strokeStyle = 'rgba(240,240,220,0.55)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(left, net - ssl); ctx.lineTo(right, net - ssl); // top half
+  ctx.moveTo(left, net + ssl); ctx.lineTo(right, net + ssl); // bottom half
+  ctx.stroke();
+
+  // Long service line for doubles (back doubles = ~30px from back)
+  ctx.strokeStyle = 'rgba(240,240,220,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(left, top + 30); ctx.lineTo(right, top + 30);
+  ctx.moveTo(left, bottom - 30); ctx.lineTo(right, bottom - 30);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Net label
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('网', left - 22, net + 4);
+
+  // Side labels
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '12px system-ui';
+  ctx.fillText('对方', cx, top + 18);
+  ctx.fillText('己方', cx, bottom - 8);
+}
+
+function drawPlayer(p, selected) {
+  const r = 18;
+  if (selected) {
+    // Glow
+    const grad = ctx.createRadialGradient(p.x, p.y, r, p.x, p.y, r + 14);
+    grad.addColorStop(0, p.color + 'AA');
+    grad.addColorStop(1, p.color + '00');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r + 14, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(p.x, p.y + r - 2, r - 2, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Circle
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+  ctx.fillStyle = selected ? p.color : p.color + 'DD';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = selected ? 2.5 : 1.5;
+  ctx.stroke();
+  // Label
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${p.label.length > 1 ? '11' : '13'}px system-ui`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(p.label, p.x, p.y);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawArc(from, to, color) {
+  const mx = (from.x + to.x) / 2;
+  const my = (from.y + to.y) / 2;
+  // Control point: lift upward (toward top of canvas)
+  const dist = Math.sqrt((to.x-from.x)**2 + (to.y-from.y)**2);
+  const lift = Math.min(180, dist * 0.55);
+  const cpx = mx;
+  const cpy = my - lift;
+
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  ctx.quadraticCurveTo(cpx, cpy, to.x, to.y);
+  ctx.strokeStyle = color || '#F5C842';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Arrowhead at destination
+  const angle = Math.atan2(to.y - cpy, to.x - cpx);
+  const aLen = 10;
+  ctx.fillStyle = color || '#F5C842';
+  ctx.beginPath();
+  ctx.moveTo(to.x, to.y);
+  ctx.lineTo(to.x - aLen * Math.cos(angle - 0.4), to.y - aLen * Math.sin(angle - 0.4));
+  ctx.lineTo(to.x - aLen * Math.cos(angle + 0.4), to.y - aLen * Math.sin(angle + 0.4));
+  ctx.closePath();
+  ctx.fill();
+
+  // Shuttle dot at destination
+  ctx.beginPath();
+  ctx.arc(to.x, to.y, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#F5C842';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// ===== Interaction =====
+function getCanvasPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  let clientX, clientY;
+  if (e.touches) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+function dist(a, b) {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
+function playerAt(pos) {
+  for (const p of players) {
+    if (dist(p, pos) < 22) return p;
+  }
+  return null;
+}
+
+function clampToSide(p, pos) {
+  // Each player can only move in their half
+  const { left, right, top, bottom, net } = COURT;
+  let x = Math.max(left + 5, Math.min(right - 5, pos.x));
+  let y;
+  if (p.side === 'top') {
+    y = Math.max(top + 5, Math.min(net - 20, pos.y));
+  } else {
+    y = Math.max(net + 20, Math.min(bottom - 5, pos.y));
+  }
+  return { x, y };
+}
+
+function isInOppositeSide(player, pos) {
+  const { net } = COURT;
+  if (player.side === 'bottom') {
+    return pos.y < net;
+  } else {
+    return pos.y > net;
+  }
+}
+
+function isInCourt(pos) {
+  return pos.x >= COURT.left && pos.x <= COURT.right && pos.y >= COURT.top && pos.y <= COURT.bottom;
+}
+
+// Pointerdown
+canvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  const pos = getCanvasPos(e);
+  const hit = playerAt(pos);
+
+  if (hit) {
+    draggingPlayer = hit;
+    dragOffset = { x: pos.x - hit.x, y: pos.y - hit.y };
+    canvas.setPointerCapture(e.pointerId);
+  } else {
+    // If a player is selected and click is in opposite side
+    if (selectedPlayer && isInCourt(pos) && isInOppositeSide(selectedPlayer, pos)) {
+      const trailColor = selectedPlayer.color + 'EE';
+      shuttleTrails.push({
+        from: { x: selectedPlayer.x, y: selectedPlayer.y },
+        to: { x: pos.x, y: pos.y },
+        color: trailColor
+      });
+      updateStatus(`已添加路线（共 ${shuttleTrails.length} 条）`);
+      selectedPlayer = null;
+      draw();
+    } else {
+      // Deselect
+      selectedPlayer = null;
+      draw();
+      updateStatus('选中球员后点击对方场地设置落点');
+    }
+  }
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  e.preventDefault();
+  if (!draggingPlayer) return;
+  const pos = getCanvasPos(e);
+  const clamped = clampToSide(draggingPlayer, { x: pos.x - dragOffset.x, y: pos.y - dragOffset.y });
+  draggingPlayer.x = clamped.x;
+  draggingPlayer.y = clamped.y;
+  draw();
+});
+
+canvas.addEventListener('pointerup', (e) => {
+  if (draggingPlayer) {
+    const pos = getCanvasPos(e);
+    const moved = dist(pos, { x: draggingPlayer.x + dragOffset.x, y: draggingPlayer.y + dragOffset.y });
+    if (moved < 5) {
+      // treat as click: select
+      if (selectedPlayer === draggingPlayer) {
+        selectedPlayer = null;
+        updateStatus('已取消选中');
+      } else {
+        selectedPlayer = draggingPlayer;
+        updateStatus(`已选中 ${draggingPlayer.name}，点击对方场地设置落点`);
+      }
+    }
+    draggingPlayer = null;
+    draw();
+  }
+});
+
+// Responsive canvas
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  const maxW = Math.min(500, wrap.clientWidth - 40);
+  canvas.style.width = maxW + 'px';
+  canvas.style.height = Math.round(maxW * 760 / 500) + 'px';
+}
+
+function initCourt() {
+  if (!courtInited) {
+    players = defaultPlayers();
+    courtInited = true;
+  }
+  resizeCanvas();
+  draw();
+}
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  draw();
+});
+
+// Init on load if court tab visible
+if (document.getElementById('tab-court').classList.contains('active')) {
+  initCourt();
+}
+</script>
+
+</body>
+</html>
