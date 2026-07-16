@@ -39,3 +39,9 @@ TV 端时钟显示。
 财务数据录入与追踪工具。
 
 ![财务数据录入](screenshots/wealth-tracker.png)
+
+### 7. Rhythm（rhythm）
+
+节奏工具。
+
+![Rhythm](screenshots/rhythm.png)

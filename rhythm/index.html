@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rhythm</title>
+<style>
+  :root{
+    --bg:#faf9f6;
+    --surface:#f0eee6;
+    --surface-2:#e6e2d6;
+    --surface-3:#dbd6c6;
+    --accent:#6b8f71;
+    --accent-soft:#9ab59d;
+    --accent-glow:rgba(107,143,113,0.16);
+    --warn:#b8823f;
+    --warn-soft:rgba(184,130,63,0.14);
+    --danger:#b85c42;
+    --text:#2a2823;
+    --text-dim:#726e64;
+    --text-faint:#a19c8f;
+    --border:#e0dbcb;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  .mono{font-family:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;}
+
+  .app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    position:relative;
+    padding:28px 18px 40px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  header.top h1{
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    margin:0;
+    color:#5A564C;
+  }
+  header.top .sub{
+    font-size:12px;
+    color:var(--text-faint);
+    margin-top:4px;
+  }
+  .fab-circle{
+    width:44px; height:44px;
+    min-width:44px;
+    border-radius:50%;
+    background:var(--surface);
+    color:var(--text);
+    border:1px solid var(--border);
+    font-size:20px;
+    font-weight:400;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    outline:none;
+    transition:background .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .fab-circle:hover,
+  .fab-circle:focus,
+  .fab-circle:active{
+    background:#6C8F72;
+    color:#fff;
+    border-color:#6C8F72;
+  }
+  .fab-circle:active{transform:scale(0.94);}
+
+  .io-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .io-btn{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    outline:none;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .io-btn:hover,
+  .io-btn:focus,
+  .io-btn:active{
+    background:#6C8F72;
+    color:#fff;
+    border-color:#6C8F72;
+  }
+  .io-btn svg{width:14px; height:14px; flex-shrink:0;}
+
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 10px;
+    text-align:center;
+  }
+  .stat-card .val{
+    font-size:18px;
+    font-weight:600;
+    color:#3D6B57;
+  }
+  .stat-card .val small{font-size:5.5px; color:var(--text-dim); font-weight:400;}
+  .stat-card .label{
+    font-size:11px;
+    color:var(--text-faint);
+    margin-top:5px;
+  }
+  .stat-card.highlight .val{color:#3D6B57;}
+
+  .elapsed-card{
+    text-align:center;
+    padding:20px 16px 18px;
+  }
+  .elapsed-big{
+    font-size:18px;
+    font-weight:600;
+    color:#3D6B57;
+    letter-spacing:0.5px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px 16px;
+    margin-bottom:16px;
+  }
+  .card-title{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-dim);
+    letter-spacing:0.3px;
+    margin:0 0 14px 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .card-title .hint{font-size:11px; color:var(--text-faint); font-weight:400;}
+
+  /* chart */
+  .chart-wrap{
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .chart{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    min-height:140px;
+    position:relative;
+    padding-top:22px;
+  }
+  .avg-line{
+    position:absolute;
+    left:0; right:0;
+    border-top:1px dashed var(--text-faint);
+    opacity:0.5;
+  }
+  .avg-tag{
+    position:absolute;
+    right:0;
+    top:-14px;
+    font-size:10px;
+    color:var(--text-faint);
+  }
+  .bar-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:26px;
+    flex:0 0 auto;
+  }
+  .bar{
+    width:16px;
+    border-radius:5px 5px 3px 3px;
+    background:var(--surface-3);
+    transition:height .4s ease;
+  }
+  .bar.max{
+    background:linear-gradient(180deg, var(--accent), var(--accent-soft));
+  }
+  .bar-val{
+    font-size:9px;
+    color:var(--text-faint);
+    margin-top:6px;
+    white-space:nowrap;
+  }
+  .bar-col.max .bar-val{color:var(--accent); font-weight:600;}
+
+  .empty-note{
+    text-align:center;
+    color:var(--text-faint);
+    font-size:13px;
+    padding:24px 10px;
+    line-height:1.7;
+  }
+
+  /* history entry card (home page) */
+  .history-entry{cursor:pointer; user-select:none; padding:16px;}
+  .entry-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .entry-title{font-size:14px; font-weight:600; color:#7C786E;}
+  .entry-right{display:flex; align-items:center; gap:6px;}
+  .entry-count{font-size:12px; color:var(--text-faint);}
+  .entry-chev{color:var(--text-faint); font-size:18px; line-height:1;}
+  .history-entry:active{background:var(--surface-2);}
+
+  /* history list rows (used inside full-page view) */
+  .h-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 0;
+    border-top:1px solid var(--border);
+  }
+  .h-row:first-child{border-top:none;}
+  .h-left .date{font-size:13px; color:var(--text);}
+  .h-left .interval{font-size:11px; color:var(--text-faint); margin-top:2px;}
+  .h-del{
+    width:26px; height:26px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--text-faint);
+    font-size:15px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .h-del:active{background:var(--surface-2); color:var(--danger);}
+
+  /* full-page history view */
+  .page{
+    position:fixed; inset:0;
+    background:var(--bg);
+    transform:translateX(100%);
+    transition:transform .28s ease;
+    z-index:80;
+    display:flex;
+    flex-direction:column;
+  }
+  .page.open{transform:translateX(0);}
+  .page-header{
+    display:flex;
+    align-items:center;
+    padding:16px 14px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .page-back{
+    width:34px; height:34px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font-size:22px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .page-back:active{background:var(--surface-2);}
+  .page-title{
+    flex:1;
+    text-align:center;
+    font-size:15px;
+    font-weight:600;
+    margin-right:34px;
+    color:#7C786E;
+  }
+  .page-header-spacer{display:none;}
+  .page-body{
+    flex:1;
+    overflow-y:auto;
+    padding:8px 18px 30px;
+  }
+  .page-list{}
+
+  /* fab */
+  /* overlay + modal */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(10,12,14,0.6);
+    backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:50;
+    padding:20px;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .sheet{
+    width:100%; max-width:400px;
+    background:var(--surface);
+    border-radius:22px;
+    padding:22px 20px 26px;
+    transform:scale(0.95);
+    transition:transform .25s ease;
+    border:1px solid var(--border);
+  }
+  .overlay.show .sheet{transform:scale(1);}
+  .sheet h2{font-size:16px; margin:0 0 18px 0; font-weight:600;}
+
+  .field label{font-size:12px; color:var(--text-dim); display:block; margin-bottom:8px;}
+  input[type="datetime-local"]{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    color:var(--text);
+    font-size:15px;
+    font-family:inherit;
+  }
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+    opacity:0.65;
+  }
+
+  .btn-row{display:flex; gap:10px; margin-top:20px;}
+  .btn{
+    flex:1;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:#14171b;}
+  .btn-primary:active{opacity:0.85;}
+  .btn-ghost{background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border);}
+  .btn-ghost:active{background:var(--surface-3);}
+
+  #confirmAdd{
+    background:#E7E2D6;
+    color:var(--text);
+    outline:none;
+    transition:background .15s ease, color .15s ease;
+  }
+  #confirmAdd:hover,
+  #confirmAdd:focus,
+  #confirmAdd:active{
+    background:#6C8F72;
+    color:#fff;
+    opacity:1;
+  }
+
+  .warn-box{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:var(--warn-soft);
+    border:1px solid rgba(211,164,108,0.3);
+    border-radius:14px;
+    padding:14px;
+    margin-top:14px;
+  }
+  .warn-box .icon{font-size:20px; line-height:1;}
+  .warn-box .txt{font-size:13px; color:var(--text); line-height:1.6;}
+  .warn-box .txt b{color:var(--warn); display:block; margin-bottom:2px; font-size:13px;}
+
+  .toast{
+    position:fixed;
+    bottom:110px;
+    left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--surface-3);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:20px;
+    font-size:13px;
+    opacity:0;
+    transition:all .3s ease;
+    pointer-events:none;
+    z-index:60;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  ::-webkit-scrollbar{height:4px; width:4px;}
+  ::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div>
+      <h1>Rhythm</h1>
+      <div class="sub">私人节律记录 · 用满分状态迎接每一天</div>
+    </div>
+    <button class="fab-circle" id="fabAdd">＋</button>
+  </header>
+
+  <div class="card elapsed-card" id="elapsedCard">
+    <div class="card-title" style="margin:0 0 6px 0;">自上次记录已过去</div>
+    <div class="elapsed-big mono" id="elapsedBig">--</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="val mono" id="statSinceLast">--</div>
+      <div class="label">距上次</div>
+    </div>
+    <div class="stat-card">
+      <div class="val mono" id="statAvg">--</div>
+      <div class="label">平均间隔</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="val mono" id="statMax">--</div>
+      <div class="label">最长间隔</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">间隔分布 <span class="hint" id="chartHint"></span></div>
+    <div id="chartArea"></div>
+  </div>
+
+  <div class="card history-entry" id="historyEntryCard">
+    <div class="entry-row">
+      <div class="entry-title">历史记录</div>
+      <div class="entry-right">
+        <span class="entry-count mono" id="historyCountHint">共 0 条</span>
+        <span class="entry-chev">›</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="io-row">
+    <button class="io-btn" id="importBtn">导入 JSON</button>
+    <button class="io-btn" id="exportBtn">导出 JSON</button>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
+  </div>
+
+</div>
+
+<!-- 历史记录全屏列表页 -->
+<div class="page" id="historyPage">
+  <div class="page-header">
+    <button class="page-back" id="historyBack">‹</button>
+    <div class="page-title">历史记录</div>
+    <div class="page-header-spacer"></div>
+  </div>
+  <div class="page-body">
+    <div class="page-list" id="historyList"></div>
+  </div>
+</div>
+
+<!-- 新增记录弹层 -->
+<div class="overlay" id="addOverlay">
+  <div class="sheet">
+    <h2>新增记录</h2>
+    <div class="field">
+      <label>时间</label>
+      <input type="datetime-local" id="timeInput">
+    </div>
+    <div id="warnSlot"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="cancelAdd">取消</button>
+      <button class="btn btn-primary" id="confirmAdd">记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹层 -->
+<div class="overlay" id="delOverlay">
+  <div class="sheet">
+    <h2>删除这条记录？</h2>
+    <div style="font-size:13px;color:var(--text-dim);">删除后无法恢复，统计与图表会同步更新。</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="cancelDel">取消</button>
+      <button class="btn btn-primary" id="confirmDel" style="background:var(--danger);">删除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'qingji_records_v1';
+  const GENTLE_DAYS = 3;
+
+  let records = [];
+  let pendingDeleteIdx = null;
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      records = raw ? JSON.parse(raw) : [];
+      records.sort((a,b)=>a-b);
+    }catch(e){ records = []; }
+  }
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  }
+
+  function toLocalInputValue(d){
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function fmtDate(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function fmtDuration(ms){
+    if(ms == null) return '--';
+    const totalHours = ms / 3600000;
+    const days = Math.floor(totalHours/24);
+    const hours = Math.round(totalHours - days*24);
+    if(days <= 0 && hours <= 0) return '<1小时';
+    if(days <= 0) return `${hours}小时`;
+    if(hours <= 0) return `${days}天`;
+    return `${days}天${hours}小时`;
+  }
+  function fmtElapsed(ms){
+    if(ms == null) return '--';
+    if(ms < 60000) return '刚刚';
+    const totalMinutes = Math.floor(ms/60000);
+    const days = Math.floor(totalMinutes/1440);
+    const hours = Math.floor((totalMinutes%1440)/60);
+    const minutes = totalMinutes%60;
+    let parts = [];
+    if(days > 0) parts.push(`${days}天`);
+    if(days > 0 || hours > 0) parts.push(`${hours}小时`);
+    parts.push(`${minutes}分钟`);
+    return parts.join('');
+  }
+  function fmtDays1(ms){
+    const d = ms/86400000;
+    return d.toFixed(1);
+  }
+
+  function intervals(){
+    const arr = [];
+    for(let i=1;i<records.length;i++){
+      arr.push(records[i]-records[i-1]);
+    }
+    return arr;
+  }
+
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  function render(){
+    document.getElementById('historyCountHint').textContent = `共 ${records.length} 条`;
+
+    const ivs = intervals();
+    const last = records.length ? records[records.length-1] : null;
+
+    document.getElementById('statSinceLast').textContent = last ? fmtDuration(Date.now()-last) : '--';
+    document.getElementById('statAvg').textContent = ivs.length ? fmtDuration(ivs.reduce((a,b)=>a+b,0)/ivs.length) : '--';
+    document.getElementById('statMax').textContent = ivs.length ? fmtDuration(Math.max(...ivs)) : '--';
+    updateElapsedNow();
+
+    renderChart(ivs);
+    renderHistory();
+  }
+
+  function renderChart(ivs){
+    const area = document.getElementById('chartArea');
+    const hint = document.getElementById('chartHint');
+    if(ivs.length === 0){
+      hint.textContent = '';
+      area.innerHTML = `<div class="empty-note">记录满 2 条后，这里会显示每次间隔的柱状图</div>`;
+      return;
+    }
+    hint.textContent = `共 ${ivs.length} 段 · 单位:天`;
+    const maxVal = Math.max(...ivs);
+    const avgVal = ivs.reduce((a,b)=>a+b,0)/ivs.length;
+    const maxHeight = 108;
+
+    let bars = '';
+    ivs.forEach((iv, i)=>{
+      const h = Math.max(6, Math.round((iv/maxVal)*maxHeight));
+      const isMax = iv === maxVal;
+      bars += `
+        <div class="bar-col ${isMax?'max':''}">
+          <div class="bar ${isMax?'max':''}" style="height:${h}px;"></div>
+          <div class="bar-val">${fmtDays1(iv)}</div>
+        </div>`;
+    });
+    const avgTop = maxHeight - Math.round((avgVal/maxVal)*maxHeight) + 22;
+
+    area.innerHTML = `
+      <div class="chart-wrap">
+        <div class="chart">
+          <div class="avg-line" style="top:${avgTop}px;"></div>
+          <div class="avg-tag" style="top:${avgTop-22}px;">均值 ${fmtDays1(avgVal)}天</div>
+          ${bars}
+        </div>
+      </div>`;
+  }
+
+  function renderHistory(){
+    const list = document.getElementById('historyList');
+    if(records.length === 0){
+      list.innerHTML = `<div class="empty-note">还没有记录</div>`;
+      return;
+    }
+    const rev = [...records].reverse();
+    let html = '';
+    rev.forEach((ts, i)=>{
+      const realIdx = records.length - 1 - i;
+      const prev = records[realIdx-1];
+      const ivTxt = prev ? `间隔 ${fmtDuration(ts-prev)}` : '首次记录';
+      html += `
+        <div class="h-row">
+          <div class="h-left">
+            <div class="date mono">${fmtDate(ts)}</div>
+            <div class="interval">${ivTxt}</div>
+          </div>
+          <button class="h-del" data-idx="${realIdx}">✕</button>
+        </div>`;
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.h-del').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        pendingDeleteIdx = parseInt(btn.dataset.idx,10);
+        openOverlay('delOverlay');
+      });
+    });
+  }
+
+  // ---- overlays ----
+  function openOverlay(id){ document.getElementById(id).classList.add('show'); }
+  function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
+
+  function openHistoryPage(){
+    document.getElementById('historyPage').classList.add('open');
+    const body = document.querySelector('#historyPage .page-body');
+    if(body) body.scrollTop = 0;
+  }
+  function closeHistoryPage(){
+    document.getElementById('historyPage').classList.remove('open');
+  }
+  document.getElementById('historyEntryCard').addEventListener('click', openHistoryPage);
+  document.getElementById('historyBack').addEventListener('click', closeHistoryPage);
+
+  document.getElementById('fabAdd').addEventListener('click', ()=>{
+    document.getElementById('timeInput').value = toLocalInputValue(new Date());
+    document.getElementById('warnSlot').innerHTML = '';
+    const btn = document.getElementById('confirmAdd');
+    btn.textContent = '记录';
+    delete btn.dataset.forced;
+    openOverlay('addOverlay');
+  });
+  document.getElementById('cancelAdd').addEventListener('click', ()=> closeOverlay('addOverlay'));
+  document.getElementById('addOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'addOverlay') closeOverlay('addOverlay');
+  });
+
+  document.getElementById('confirmAdd').addEventListener('click', function(){
+    const val = document.getElementById('timeInput').value;
+    if(!val){ toast('请选择时间'); return; }
+    const ts = new Date(val).getTime();
+
+    if(this.dataset.forced === '1'){
+      doSave(ts);
+      return;
+    }
+
+    const last = records.length ? records[records.length-1] : null;
+    const warnSlot = document.getElementById('warnSlot');
+
+    if(last && (ts - last) < GENTLE_DAYS*86400000 && (ts - last) >= 0){
+      warnSlot.innerHTML = `
+        <div class="warn-box">
+          <div class="icon">🌱</div>
+          <div class="txt">
+            <b>距上次不到 ${GENTLE_DAYS} 天</b>
+            身体需要恢复的时间，请爱惜身体，量力而行。
+          </div>
+        </div>`;
+      this.textContent = '仍然记录';
+      this.dataset.forced = '1';
+      return;
+    }
+    doSave(ts);
+  });
+
+  function doSave(ts){
+    records.push(ts);
+    records.sort((a,b)=>a-b);
+    save();
+    render();
+    closeOverlay('addOverlay');
+    const btn = document.getElementById('confirmAdd');
+    btn.textContent = '记录';
+    delete btn.dataset.forced;
+    toast('记录成功');
+  }
+
+  document.getElementById('cancelDel').addEventListener('click', ()=>{
+    pendingDeleteIdx = null;
+    closeOverlay('delOverlay');
+  });
+  document.getElementById('delOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'delOverlay'){ pendingDeleteIdx = null; closeOverlay('delOverlay'); }
+  });
+  document.getElementById('confirmDel').addEventListener('click', ()=>{
+    if(pendingDeleteIdx !== null){
+      records.splice(pendingDeleteIdx,1);
+      save();
+      render();
+      toast('已删除');
+    }
+    pendingDeleteIdx = null;
+    closeOverlay('delOverlay');
+  });
+
+  function updateElapsedNow(){
+    const last = records.length ? records[records.length-1] : null;
+    const el = document.getElementById('elapsedBig');
+    if(!el) return;
+    el.textContent = last ? fmtElapsed(Date.now()-last) : '暂无记录';
+  }
+
+  // ---- 导出 JSON ----
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const payload = {
+      app: 'Rhythm',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      records: records
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    a.href = url;
+    a.download = `Rhythm-备份-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('已导出');
+  });
+
+  // ---- 导入 JSON ----
+  document.getElementById('importBtn').addEventListener('click', ()=>{
+    document.getElementById('importFile').click();
+  });
+  document.getElementById('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        const incoming = Array.isArray(data) ? data : (Array.isArray(data.records) ? data.records : null);
+        if(!incoming) throw new Error('格式不正确');
+        const valid = incoming
+          .map(v => typeof v === 'number' ? v : new Date(v).getTime())
+          .filter(v => Number.isFinite(v));
+        if(valid.length === 0) throw new Error('没有可用的记录');
+
+        const existing = new Set(records);
+        let added = 0;
+        valid.forEach(ts=>{
+          if(!existing.has(ts)){
+            records.push(ts);
+            existing.add(ts);
+            added++;
+          }
+        });
+        records.sort((a,b)=>a-b);
+        save();
+        render();
+        toast(added > 0 ? `已导入 ${added} 条新记录` : '没有新增记录（已存在）');
+      }catch(err){
+        toast('导入失败，文件格式不正确');
+      }finally{
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  load();
+  render();
+  setInterval(updateElapsedNow, 30000);
+})();
+</script>
+</body>
+</html>
