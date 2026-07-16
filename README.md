@@ -42,6 +42,6 @@ TV 端时钟显示。
 
 ### 7. Rhythm（rhythm）
 
-节奏工具。
+节律工具。
 
 ![Rhythm](screenshots/rhythm.png)
