@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>羽毛球教学工具</title>
+<title>MAYUE-badminton</title>
+
 <style>
   :root {
     --bg: #F9F8F6;
@@ -54,20 +55,46 @@
     height: 56px;
   }
   .site-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 17px;
-    font-weight: normal;
-    letter-spacing: 0.01em;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
     color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
+    line-height: 1;
+  }
+  .site-title .title-prefix {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-style: normal;
+    font-size: 19px;
+    font-weight: 400;
+    background: linear-gradient(135deg, #C4722E 0%, #E8924A 50%, #C4722E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.06em;
+    margin-right: -0.06em;
+    white-space: nowrap;
+  }
+  .site-title .title-main {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-style: normal;
+    font-size: 19px;
+    background: linear-gradient(135deg, #C4722E 0%, #E8924A 50%, #C4722E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.06em;
   }
   .site-title .dot {
-    width: 8px; height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--accent);
+    opacity: 0.6;
     display: inline-block;
+    flex-shrink: 0;
   }
 
   /* Nav Tabs */
@@ -105,7 +132,7 @@
 
   /* Section titles */
   .section-title {
-    font-family: Georgia, serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
     font-size: 22px;
     font-weight: normal;
     margin-bottom: 6px;
@@ -379,12 +406,182 @@
   }
   .instructions strong { color: var(--accent-dark); }
 
-  /* Responsive */
+  /* Athletes / Hall of Fame */
+  .athlete-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .athlete-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .athlete-rank {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  }
+  .athlete-card.rank-1 .athlete-rank {
+    background: linear-gradient(135deg, #E8924A, #C4722E);
+    color: #fff;
+  }
+  .athlete-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .athlete-country {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .athlete-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .category-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+  }
+  .category-icon { font-size: 20px; }
+  .category-name {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+  .category-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Tier system */
+  .tier-section { margin-bottom: 20px; }
+  .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .tier-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+  .tier-goat { background: linear-gradient(135deg, #E8924A, #C4722E); color: #fff; }
+  .tier-legend { background: #E6EEF7; color: #2D5F8A; }
+  .tier-hof { background: #F0F0EC; color: #6B6B67; }
+  .tier-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .athlete-grid.tier-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .athlete-card.compact {
+    padding: 12px;
+    gap: 8px;
+  }
+  .athlete-card.compact .athlete-rank {
+    width: 26px; height: 26px;
+    font-size: 12px;
+  }
+  .athlete-card.compact .athlete-name { font-size: 13px; }
+  .athlete-card.compact .athlete-desc { font-size: 11px; }
+  .athlete-card.future-note {
+    border-style: dashed;
+    border-color: var(--border-strong);
+  }
+  .future-tag {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+  .criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .criteria-table th, .criteria-table td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .criteria-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .criteria-table td:last-child, .criteria-table th:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+
+  /* Sub-tabs for athletes hall of fame */
+  .sub-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .sub-tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sub-tab:hover { background: var(--bg); border-color: var(--text-muted); }
+  .sub-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 500;
+  }
+  .sub-panel { display: none; }
+  .sub-panel.active { display: block; }
+
   @media (max-width: 640px) {
     .main { padding: 20px 16px; }
     .nav-tabs { gap: 2px; }
-    .nav-tab { padding: 6px 10px; font-size: 13px; }
-    .site-title { font-size: 15px; }
+    .nav-tab { padding: 6px 8px; font-size: 12px; }
+    .site-title .title-prefix { font-size: 14px; }
+    .site-title .title-main { font-size: 14px; }
     .section-title { font-size: 19px; }
     .header-inner { height: 50px; }
     .court-toolbar { gap: 8px; }
@@ -397,12 +594,14 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="site-title">
-      <span class="dot"></span>
-      羽毛球教学工具
+      <span class="title-main">马老师的羽毛球教学工具</span>
     </div>
     <nav class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('tech')">技术</button>
+      <button class="nav-tab active" onclick="switchTab('equip')">装备</button>
+      <button class="nav-tab" onclick="switchTab('fitness')">体能</button>
+      <button class="nav-tab" onclick="switchTab('tech')">技术</button>
       <button class="nav-tab" onclick="switchTab('footwork')">步伐</button>
+      <button class="nav-tab" onclick="switchTab('athletes')">名人堂</button>
       <button class="nav-tab" onclick="switchTab('court')">场地</button>
     </nav>
   </div>
@@ -410,8 +609,303 @@
 
 <main class="main">
 
+  <!-- ===== TAB: 装备 ===== -->
+  <div id="tab-equip" class="tab-panel active">
+    <h1 class="section-title">装备选购</h1>
+    <p class="section-subtitle">了解装备差异，选对适合自己水平和风格的器材</p>
+
+    <!-- 球拍 -->
+    <div class="block-title">球拍</div>
+
+    <!-- 重量规格 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-label">拍重规格</div>
+      <div class="card-title" style="margin-bottom:12px;">U 数越大，拍越轻</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-bottom:14px;">
+        <div style="background:var(--bg); border-radius:8px; padding:12px; text-align:center; border:1px solid var(--border);">
+          <div style="font-size:20px; font-weight:700; color:var(--text-secondary);">2U</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">90–94 g</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">大力杀球型</div>
+        </div>
+        <div style="background:var(--bg); border-radius:8px; padding:12px; text-align:center; border:1px solid var(--border);">
+          <div style="font-size:20px; font-weight:700; color:var(--text-secondary);">3U</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">85–89 g</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">力量进攻型</div>
+        </div>
+        <div style="background:var(--accent-light); border-radius:8px; padding:12px; text-align:center; border:1px solid #F5D5B5; position:relative;">
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;">最常用</div>
+          <div style="font-size:20px; font-weight:700; color:var(--accent-dark);">4U</div>
+          <div style="font-size:12px; color:var(--accent-dark); margin-top:4px;">80–84 g</div>
+          <div style="font-size:11px; color:var(--accent-dark); margin-top:6px;">均衡全能型</div>
+        </div>
+        <div style="background:var(--bg); border-radius:8px; padding:12px; text-align:center; border:1px solid var(--border);">
+          <div style="font-size:20px; font-weight:700; color:var(--text-secondary);">5U</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">75–79 g</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">灵活控制型</div>
+        </div>
+      </div>
+      <div class="card-desc">4U 是市面上最常见的规格，适合绝大多数业余球手。3U 适合力量较强、追求更强扣杀的球员；5U 适合女生或注重网前细腻控球的球员。</div>
+    </div>
+
+    <!-- 拍框形状 -->
+    <div class="card-grid">
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
+            <ellipse cx="20" cy="22" rx="16" ry="19" fill="none" stroke="#E8924A" stroke-width="2"/>
+            <line x1="20" y1="41" x2="20" y2="52" stroke="#999" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="card-label">拍框形状</div>
+            <div class="card-title">椭圆形框（传统）</div>
+          </div>
+        </div>
+        <div class="card-desc">击球甜区居中偏大，容错率高，手感宽容。适合初中级球员建立稳定击球感，不容易因偏拍而失误。</div>
+        <div class="card-tags"><span class="tag">容错率高</span><span class="tag">新手友好</span><span class="tag">手感柔和</span></div>
+      </div>
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <svg width="40" height="52" viewBox="0 0 40 52" fill="none">
+            <path d="M20 3 Q36 8 36 26 Q36 42 20 48 Q4 42 4 26 Q4 8 20 3Z" fill="none" stroke="#4A7C9B" stroke-width="2"/>
+            <line x1="20" y1="48" x2="20" y2="52" stroke="#999" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div class="card-label">拍框形状</div>
+            <div class="card-title">方形/等深框（等宽）</div>
+          </div>
+        </div>
+        <div class="card-desc">甜区面积更大，主要向顶部延伸，击球区域更广。在进攻和防守转换时均能保持稳定力量，是当前主流选择。</div>
+        <div class="card-tags"><span class="tag">甜区大</span><span class="tag">主流选择</span><span class="tag">攻防均衡</span></div>
+      </div>
+    </div>
+
+    <!-- 平衡点 -->
+    <div class="card" style="margin-top:16px; margin-bottom:16px;">
+      <div class="card-label">平衡点（Balance Point）</div>
+      <div class="card-title" style="margin-bottom:12px;">平衡点越高，越偏进攻；越低，越易控制</div>
+      <div style="position:relative; height:48px; margin:16px 0 20px;">
+        <!-- Bar -->
+        <div style="position:absolute; top:50%; left:0; right:0; height:6px; background:linear-gradient(to right, #4A7C9B, #E8E8E4, #E8924A); border-radius:3px; transform:translateY(-50%);"></div>
+        <!-- Markers -->
+        <div style="position:absolute; left:10%; top:10px; text-align:center; transform:translateX(-50%);">
+          <div style="width:2px; height:16px; background:#4A7C9B; margin:0 auto;"></div>
+          <div style="font-size:10px; color:#4A7C9B; margin-top:2px; white-space:nowrap;">低平衡点<br>270–285mm</div>
+        </div>
+        <div style="position:absolute; left:50%; top:10px; text-align:center; transform:translateX(-50%);">
+          <div style="width:2px; height:16px; background:#888; margin:0 auto;"></div>
+          <div style="font-size:10px; color:#888; margin-top:2px; white-space:nowrap;">均衡<br>285–295mm</div>
+        </div>
+        <div style="position:absolute; left:90%; top:10px; text-align:center; transform:translateX(-50%);">
+          <div style="width:2px; height:16px; background:#E8924A; margin:0 auto;"></div>
+          <div style="font-size:10px; color:#C4722E; margin-top:2px; white-space:nowrap;">高平衡点<br>295mm+</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px;">
+        <div style="background:#E6EEF7; border-radius:8px; padding:10px; font-size:12px;">
+          <div style="font-weight:600; color:#2D5F8A; margin-bottom:4px;">偏低平衡点</div>
+          <div style="color:#4A7C9B;">拍头轻盈，反应快，网前控球灵活，适合双打后位或防守型球员</div>
+        </div>
+        <div style="background:var(--bg); border-radius:8px; padding:10px; font-size:12px; border:1px solid var(--border);">
+          <div style="font-weight:600; color:#555; margin-bottom:4px;">均衡平衡点</div>
+          <div style="color:var(--text-secondary);">攻防兼顾，适合初中级球员或单双打均打的全能型球员</div>
+        </div>
+        <div style="background:#FDF0E6; border-radius:8px; padding:10px; font-size:12px;">
+          <div style="font-weight:600; color:#C4722E; margin-bottom:4px;">偏高平衡点</div>
+          <div style="color:#C4722E;">拍头重，挥拍惯性大，杀球力量强，适合单打进攻型球员</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 其他配件 -->
+    <div class="block-title">配件</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">球线</div>
+        <div class="card-title">磅数 & 材质</div>
+        <div class="card-desc">磅数越高，球线越紧，击球弹性越小但控制越精准；磅数越低，弹性大，更适合初学者。业余球员常用 22–26 磅；进阶球员可拉至 26–28 磅。线材分细线（控制/速度）和粗线（耐用/力量），推荐新手从粗线低磅开始。</div>
+        <div class="card-tags"><span class="tag">22–26磅 新手</span><span class="tag">26–28磅 进阶</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">手胶</div>
+        <div class="card-title">吸汗 & 手感</div>
+        <div class="card-desc">手胶主要分吸汗胶和干性胶。手汗多的球员建议用吸汗型（毛巾胶），手感粗糙但吸汗效果强；手汗少的球员可用干性薄胶，握感更贴合。手胶属于消耗品，建议每月更换一次。</div>
+        <div class="card-tags"><span class="tag">吸汗型</span><span class="tag">干性胶</span><span class="tag">定期更换</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">球服</div>
+        <div class="card-title">速干 & 透气</div>
+        <div class="card-desc">羽毛球运动强度大、出汗多，球服最重要的是速干和透气性。建议选择聚酯纤维或专业运动面料，避免纯棉。款式以宽松为主，方便大范围挥拍和移步动作。</div>
+        <div class="card-tags"><span class="tag">速干面料</span><span class="tag">宽松版型</span></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 球鞋 -->
+    <div class="block-title">羽毛球鞋</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-label">选购要点</div>
+      <div class="card-title" style="margin-bottom:14px;">不要穿跑步鞋打球——两者设计逻辑完全不同</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px;">
+        <div style="padding:14px; background:var(--bg); border-radius:8px; border-left:3px solid var(--accent);">
+          <div style="font-weight:600; font-size:14px; margin-bottom:6px;">① 支撑性（最重要）</div>
+          <div style="font-size:13px; color:var(--text-secondary);">羽毛球需要大量横向急停和变向，鞋底必须提供足够的侧向支撑，防止崴脚。这是首选指标。</div>
+        </div>
+        <div style="padding:14px; background:var(--bg); border-radius:8px; border-left:3px solid #4A7C9B;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:6px;">② 防滑性</div>
+          <div style="font-size:13px; color:var(--text-secondary);">室内羽毛球场（木地板/PVC）专用非印记橡胶底。切勿用户外底纹鞋，防滑效果相差很大。</div>
+        </div>
+        <div style="padding:14px; background:var(--bg); border-radius:8px; border-left:3px solid #4A7C59;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:6px;">③ 减震缓冲</div>
+          <div style="font-size:13px; color:var(--text-secondary);">跳杀和快速移动对膝盖冲击大，中底需要有足够缓震。尤其对于体重偏重或运动量大的球员尤为重要。</div>
+        </div>
+        <div style="padding:14px; background:var(--bg); border-radius:8px; border-left:3px solid #8B5CF6;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:6px;">④ 轻量化</div>
+          <div style="font-size:13px; color:var(--text-secondary);">鞋越轻，启动和移动越快。在满足支撑和缓震的前提下，尽量选择轻量款，能显著降低疲劳感。</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; padding:10px 14px; background:var(--accent-light); border-radius:8px; font-size:13px; color:var(--accent-dark);">
+        💡 <strong>建议：</strong>预算有限时，宁可买便宜球拍配好球鞋，也不要反过来。脚的安全比手感更重要。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: 体能 ===== -->
+  <div id="tab-fitness" class="tab-panel">
+    <h1 class="section-title">体能训练</h1>
+    <p class="section-subtitle">羽毛球是对体能要求极高的运动，专项体能决定技术上限</p>
+
+    <!-- 体能要求 -->
+    <div class="block-title">羽毛球对体能的要求</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:28px;">
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">⚡</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:var(--accent-dark);">爆发力</div>
+        <div style="font-size:12px; color:var(--text-secondary);">起跳杀球、急停蹬地，每次动作都需要瞬间的肌肉爆发。下肢和躯干爆发力直接影响杀球威力。</div>
+      </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🏃</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#2D5F8A;">速度与反应</div>
+        <div style="font-size:12px; color:var(--text-secondary);">职业球员平均起步反应在 0.2 秒以内。第一步启动速度往往比步频更关键，决定能否追到球。</div>
+      </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🔄</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#2D7A4F;">灵敏性</div>
+        <div style="font-size:12px; color:var(--text-secondary);">快速变向、急停启动，对神经-肌肉协调性要求极高。灵敏性决定步伐是否轻盈流畅。</div>
+      </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🫁</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#6A3DA8;">有氧耐力</div>
+        <div style="font-size:12px; color:var(--text-secondary);">一局比赛可能持续 20–45 分钟，期间心率常维持在 160–180 bpm。有氧基础决定后半程质量。</div>
+      </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">💪</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#C4722E;">核心稳定</div>
+        <div style="font-size:12px; color:var(--text-secondary);">躯干核心是力量传导的中枢。核心稳定性不足，手臂再强也无法充分发力，且容易腰伤。</div>
+      </div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🤸</div>
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#888;">柔韧性</div>
+        <div style="font-size:12px; color:var(--text-secondary);">肩、髋、踝的柔韧性直接影响击球幅度和落地缓冲。柔韧性不足是业余球员受伤的主要原因之一。</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 训练方法 -->
+    <div class="block-title">专项体能训练方法</div>
+    <div class="card-grid">
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🪢</div>
+        <div class="card-label">基础有氧 + 协调</div>
+        <div class="card-title">跳绳</div>
+        <div class="card-desc">最推荐的羽毛球基础体能训练。同时锻炼心肺、踝关节弹性、节奏感和协调性。单脚跳、交叉跳均可针对不同能力。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：每天 10–15 分钟，初期 100 个/组 × 3 组；进阶可练速跳计时
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🔵</div>
+        <div class="card-label">步伐专项</div>
+        <div class="card-title">六点移动步法操</div>
+        <div class="card-desc">模拟场地六个方向（正手网前、反手网前、正手中场、反手中场、正手后场、头顶后场）的移动训练，不用球只练步伐。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：每组 30 秒内完成六点一轮，做 5–8 组；注重到位后的制动与回中
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🦵</div>
+        <div class="card-label">下肢力量</div>
+        <div class="card-title">深蹲 / 弓步蹲</div>
+        <div class="card-desc">深蹲强化整体腿部力量；弓步蹲模拟羽毛球接球时的单腿支撑动作，与步伐动作更接近。可进阶为跳蹲增加爆发力成分。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：深蹲 3×12 组；弓步蹲每侧 3×10 组；每周 2–3 次
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🧱</div>
+        <div class="card-label">核心训练</div>
+        <div class="card-title">平板支撑 / 俄罗斯转体</div>
+        <div class="card-desc">平板支撑建立基础核心稳定，俄罗斯转体强化腰腹旋转力量（与击球转体动作直接相关）。侧平板支撑可强化侧向稳定。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：平板支撑 3×45 秒；俄罗斯转体 3×20 次；可每天做
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🏃‍♀️</div>
+        <div class="card-label">有氧基础</div>
+        <div class="card-title">慢跑 / 骑行</div>
+        <div class="card-desc">建立有氧基础，帮助长局比赛不掉速。骑行对膝关节冲击小，适合打球当天的有氧补充。控制心率在 130–150 bpm 区间最有效。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：慢跑每次 20–30 分钟；每周 2 次；骑行可适当增加时长
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:22px; margin-bottom:8px;">🤾</div>
+        <div class="card-label">爆发力专项</div>
+        <div class="card-title">跳箱 / 立定跳远</div>
+        <div class="card-desc">针对跳杀起跳和蹬地爆发力的专项训练。跳箱训练落地缓冲和再起跳，立定跳远检验水平爆发力。</div>
+        <div style="margin-top:10px; font-size:12px; background:var(--bg); padding:8px 10px; border-radius:6px; color:var(--text-secondary);">
+          参考量：跳箱 4×8 次；注意落地膝盖不要内扣，先从低箱开始
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 恢复与拉伸 -->
+    <div class="block-title">训练后恢复</div>
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-label">拉伸与恢复</div>
+      <div class="card-title" style="margin-bottom:12px;">训练后的恢复同样是体能训练的一部分</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px;">
+        <div style="font-size:13px; color:var(--text-secondary); background:var(--bg); padding:10px 12px; border-radius:8px;">
+          <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">肩部拉伸</strong>
+          手臂横跨胸前，另一手辅助固定，保持 20–30 秒，预防肩袖损伤
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary); background:var(--bg); padding:10px 12px; border-radius:8px;">
+          <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">大腿前侧拉伸</strong>
+          单腿站立，另一脚向后弯曲抓踝，大腿前侧有拉伸感，持续 20–30 秒
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary); background:var(--bg); padding:10px 12px; border-radius:6px;">
+          <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">踝关节活动</strong>
+          坐姿缓慢旋转踝关节，顺逆各 10 圈，打球前后均应进行
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary); background:var(--bg); padding:10px 12px; border-radius:8px;">
+          <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">腰部旋转拉伸</strong>
+          仰卧，屈膝倒向一侧，双肩保持贴地，缓慢转换方向，各 5 次
+        </div>
+      </div>
+      <div style="margin-top:14px; padding:10px 14px; background:var(--accent-light); border-radius:8px; font-size:13px; color:var(--accent-dark);">
+        💡 <strong>建议：</strong>每次打球后至少进行 10 分钟拉伸。体能训练与上场打球之间最好间隔 1 天，让肌肉充分恢复。
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TAB: 技术 ===== -->
-  <div id="tab-tech" class="tab-panel active">
+  <div id="tab-tech" class="tab-panel">
     <h1 class="section-title">击球技术</h1>
     <p class="section-subtitle">按区域划分的核心技术体系</p>
 
@@ -446,9 +940,9 @@
             <path d="M16 35 Q13 33 14 29 Q17 31 17 35" fill="#F5D5B0" stroke="#C4A070" stroke-width="1"/>
           </svg>
         </div>
-        <div class="grip-name">全式握法</div>
-        <div class="grip-use">适用场景：大力扣杀、重击后场</div>
-        <div class="grip-note">五指全部包握拍柄，握持最稳定，爆发力最强，但灵活性相对较低，主要用于需要最大力量输出的击球。</div>
+        <div class="grip-name">拳式握法</div>
+        <div class="grip-use">适用场景：平抽快档、中场快速对攻</div>
+        <div class="grip-note">五指握拳状包握拍柄，拍面与地面近乎垂直。握持稳固，出拍速度快，适合中场快速平抽反应，但手腕灵活度受限。</div>
       </div>
       <div class="grip-card">
         <div class="grip-icon">
@@ -573,12 +1067,29 @@
           <span class="tag">基础</span><span class="tag">过渡</span>
         </div>
       </div>
-      <div class="card">
-        <div class="card-label">后场</div>
-        <div class="card-title">杀球（扣杀）</div>
-        <div class="card-desc">从高点向下猛力扣击，是最强进攻手段。要求髋部转动带动大臂，大臂带小臂，手腕最后鞭打发力，击球点高且在头顶前方。</div>
-        <div class="card-tags">
-          <span class="tag">进攻</span><span class="tag">爆发</span><span class="tag">关键</span>
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-label">后场 · 核心进攻</div>
+        <div class="card-title" style="margin-bottom:10px;">杀球体系</div>
+        <div class="card-desc" style="margin-bottom:16px;">杀球是羽毛球最强进攻手段，核心发力链：<strong>转髋 → 带动大臂 → 甩小臂 → 手腕鞭打收紧</strong>。击球点越高越靠前，下压角度越大，对方越难防守。根据场景和目的，杀球分为以下几种：</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px;">
+          <div style="background:var(--bg); border-radius:8px; padding:14px; border-left:3px solid var(--accent);">
+            <div style="font-weight:700; font-size:14px; margin-bottom:6px;">⚡ 跳杀</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">起跳在最高点击球，是攻击角度最刁钻、威力最强的杀法。腾空后拍面从高处向斜下方猛切，球速快、角度陡。</div>
+            <div style="font-size:11px; color:var(--text-muted); background:#fff; padding:6px 8px; border-radius:6px;">要点：起跳时机要早，落地后迅速回位；肩关节和膝盖承压大，注意防护</div>
+          </div>
+          <div style="background:var(--bg); border-radius:8px; padding:14px; border-left:3px solid #4A7C9B;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:6px;">🔪 劈杀（切杀）</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">拍面斜切球托，不是正面压下而是从侧面"切"过去，球速稍慢但旋转多、落点偏斜，对方难以判断方向。</div>
+            <div style="font-size:11px; color:var(--text-muted); background:#fff; padding:6px 8px; border-radius:6px;">要点：手腕内旋带动拍面侧斜，击球瞬间有向外"抹"的动作；常用于对角劈杀</div>
+          </div>
+          <div style="background:var(--bg); border-radius:8px; padding:14px; border-left:3px solid #4A7C59;">
+            <div style="font-weight:700; font-size:14px; margin-bottom:6px;">🎯 点杀</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">不做大幅度引拍，用小动作在高点"点"击球头，出球突然、弧度短平。速度虽不如全力跳杀，但更具欺骗性。</div>
+            <div style="font-size:11px; color:var(--text-muted); background:#fff; padding:6px 8px; border-radius:6px;">要点：动作幅度小是关键，容易与吊球动作混淆，形成假动作迷惑对手</div>
+          </div>
+        </div>
+        <div class="card-tags" style="margin-top:12px;">
+          <span class="tag">进攻</span><span class="tag">爆发</span><span class="tag">跳杀</span><span class="tag">劈杀</span><span class="tag">点杀</span>
         </div>
       </div>
       <div class="card">
@@ -693,6 +1204,292 @@
     </div>
   </div>
 
+  <!-- ===== TAB: 名人堂 ===== -->
+  <div id="tab-athletes" class="tab-panel">
+    <h1 class="section-title">羽坛名人堂</h1>
+    <p class="section-subtitle">参考篮球、网球、F1 等项目的评价体系，建立可持续更新的分级名人堂——评价的是历史地位与整个职业生涯，而非单赛季实力或巅峰一年</p>
+
+    <!-- 入选标准 -->
+    <div class="card" style="margin-bottom:28px;">
+      <div class="card-label">入选标准</div>
+      <div class="card-title" style="margin-bottom:12px;">五项加权评分（总分 100 分）</div>
+      <table class="criteria-table">
+        <tr><th>评分项目</th><th>权重</th></tr>
+        <tr><td>奥运会</td><td>30</td></tr>
+        <tr><td>世锦赛</td><td>25</td></tr>
+        <tr><td>世界第一（时长）</td><td>20</td></tr>
+        <tr><td>巡回赛（全英、公开赛、总决赛等）</td><td>15</td></tr>
+        <tr><td>历史影响力（打法、统治力、时代意义）</td><td>10</td></tr>
+      </table>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+        <span class="tier-badge tier-goat">GOAT · 95分以上</span>
+        <span class="tier-badge tier-legend">Legend · 85–94分</span>
+        <span class="tier-badge tier-hof">Hall of Fame · 75–84分</span>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">这一体系既能体现冠军的重要性，也不会因球员缺少奥运冠军就完全否定其历史贡献（例如李宗伟、戴资颖）。分级是动态的——随着荣誉累积，现役选手可以逐步晋升。</div>
+    </div>
+
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchAthleteSub('ms')">男子单打</button>
+      <button class="sub-tab" onclick="switchAthleteSub('ws')">女子单打</button>
+      <button class="sub-tab" onclick="switchAthleteSub('md')">男子双打</button>
+      <button class="sub-tab" onclick="switchAthleteSub('wd')">女子双打</button>
+      <button class="sub-tab" onclick="switchAthleteSub('xd')">混合双打</button>
+      <button class="sub-tab" onclick="switchAthleteSub('lt')">终身成就奖</button>
+    </div>
+
+    <div id="sub-ms" class="sub-panel active">
+    <!-- ===== 男子单打 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏸</span>
+      <span class="category-name">男子单打</span>
+      <span class="category-sub">Men's Singles</span>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-goat">GOAT</span><span class="tier-desc">现代男单历史第一梯队</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card rank-1"><div class="athlete-rank">1</div><div><div class="athlete-name">林丹</div><div class="athlete-country">中国 ｜ 1983</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">2</div><div><div class="athlete-name">李宗伟</div><div class="athlete-country">马来西亚 ｜ 1982</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">3</div><div><div class="athlete-name">陶菲克·希达亚特</div><div class="athlete-country">印度尼西亚 ｜ 1981</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">4</div><div><div class="athlete-name">安赛龙</div><div class="athlete-country">丹麦 ｜ 1994</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-legend">Legend</span><span class="tier-desc">时代的标志性人物</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">5</div><div><div class="athlete-name">谌龙</div><div class="athlete-country">中国 ｜ 1989</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">6</div><div><div class="athlete-name">杨阳</div><div class="athlete-country">中国 ｜ 1963</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">7</div><div><div class="athlete-name">梁海量</div><div class="athlete-country">印度尼西亚 ｜ 1956</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">8</div><div><div class="athlete-name">赵剑华</div><div class="athlete-country">中国 ｜ 1962</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">9</div><div><div class="athlete-name">桃田贤斗</div><div class="athlete-country">日本 ｜ 1994</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">10</div><div><div class="athlete-name">彼得·盖德</div><div class="athlete-country">丹麦 ｜ 1973</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-hof">Hall of Fame</span><span class="tier-desc">长期世界顶尖、拥有重要荣誉</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact future-note"><div class="athlete-rank">11</div><div><div class="athlete-name">石宇奇</div><div class="athlete-country">中国 ｜ 1996</div><span class="future-tag">现役·有望上升</span></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">12</div><div><div class="athlete-name">普尔-埃里克·霍耶</div><div class="athlete-country">丹麦 ｜ 1988</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">13</div><div><div class="athlete-name">孙俊</div><div class="athlete-country">中国 ｜ 1974</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">14</div><div><div class="athlete-name">阿迪</div><div class="athlete-country">印度尼西亚 ｜ 1969</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">15</div><div><div class="athlete-name">乔纳森·克里斯蒂</div><div class="athlete-country">印度尼西亚 ｜ 1997</div><span class="future-tag">现役·有提升空间</span></div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="sub-ws" class="sub-panel">
+    <!-- ===== 女子单打 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏸</span>
+      <span class="category-name">女子单打</span>
+      <span class="category-sub">Women's Singles</span>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-goat">GOAT</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card rank-1"><div class="athlete-rank">1</div><div><div class="athlete-name">李玲蔚</div><div class="athlete-country">中国 ｜ 1964</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">2</div><div><div class="athlete-name">张宁</div><div class="athlete-country">中国 ｜ 1975</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">3</div><div><div class="athlete-name">王莲香</div><div class="athlete-country">印度尼西亚 ｜ 1975</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">4</div><div><div class="athlete-name">卡罗琳娜·马林</div><div class="athlete-country">西班牙 ｜ 1993</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-legend">Legend</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">5</div><div><div class="athlete-name">戴资颖</div><div class="athlete-country">中华台北 ｜ 1994</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">6</div><div><div class="athlete-name">安洗莹</div><div class="athlete-country">韩国 ｜ 2002</div><span class="future-tag">现役·已达传奇级</span></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">7</div><div><div class="athlete-name">韩爱萍</div><div class="athlete-country">中国 ｜ 1962</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">8</div><div><div class="athlete-name">李雪芮</div><div class="athlete-country">中国 ｜ 1991</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">9</div><div><div class="athlete-name">王仪涵</div><div class="athlete-country">中国 ｜ 1988</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">10</div><div><div class="athlete-name">陈雨菲</div><div class="athlete-country">中国 ｜ 1998</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-hof">Hall of Fame</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">11</div><div><div class="athlete-name">王适娴</div><div class="athlete-country">中国 ｜ 1988</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">12</div><div><div class="athlete-name">山口茜</div><div class="athlete-country">日本 ｜ 1997</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">13</div><div><div class="athlete-name">谢杏芳</div><div class="athlete-country">中国 ｜ 1981</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">14</div><div><div class="athlete-name">龚智超</div><div class="athlete-country">中国 ｜ 1975</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">15</div><div><div class="athlete-name">拉差诺·因达农</div><div class="athlete-country">泰国 ｜ 1994</div></div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="sub-md" class="sub-panel">
+    <!-- ===== 男子双打 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏸</span>
+      <span class="category-name">男子双打</span>
+      <span class="category-sub">Men's Doubles · 以经典组合计</span>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-goat">GOAT</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card rank-1"><div class="athlete-rank">1</div><div><div class="athlete-name">蔡赟 / 傅海峰</div><div class="athlete-country">中国 · 风云组合 ｜ 1981 / b.1983</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">2</div><div><div class="athlete-name">马基斯·基多 / 亨德拉·塞蒂亚万</div><div class="athlete-country">印度尼西亚 ｜ 1984 / b.1984</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">3</div><div><div class="athlete-name">阿山 / 亨德拉·塞蒂亚万</div><div class="athlete-country">印度尼西亚 ｜ 1991 / b.1984</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">4</div><div><div class="athlete-name">马库斯·吉迪恩 / 凯文·苏卡穆约</div><div class="athlete-country">印度尼西亚 · 小黄人 ｜ 1994 / b.1995</div></div></div>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:var(--text-muted); background:var(--bg); padding:8px 12px; border-radius:8px;">💡 小黄人组合没有奥运、世锦赛冠军，但长期世界第一、巡回赛统治力极强，因此列入 GOAT 级，而非因缺少两项大赛冠军就被排除。</div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-legend">Legend</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">5</div><div><div class="athlete-name">李永波 / 田秉毅</div><div class="athlete-country">中国 ｜ 1963 / b.1963</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">6</div><div><div class="athlete-name">郑在成 / 李龙大</div><div class="athlete-country">韩国 ｜ 1979 / b.1982</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">7</div><div><div class="athlete-name">李洋 / 王齐麟</div><div class="athlete-country">中华台北 ｜ 1996 / b.1997</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">8</div><div><div class="athlete-name">朴柱奉 / 金文秀</div><div class="athlete-country">韩国 ｜ 1969 / b.1968</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">9</div><div><div class="athlete-name">鲍伊 / 摩根森</div><div class="athlete-country">丹麦 ｜ 1986 / b.1986</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">10</div><div><div class="athlete-name">李俊慧 / 刘雨辰</div><div class="athlete-country">中国 · 双塔组合 ｜ 1996 / b.1995</div><span class="future-tag">职业生涯较短但荣誉足够</span></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-hof">Hall of Fame</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">11</div><div><div class="athlete-name">瑞奇·苏巴吉亚 / 雷西·迈纳基</div><div class="athlete-country">印度尼西亚 ｜ 1972 / b.1974</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">12</div><div><div class="athlete-name">古健杰 / 陈文宏</div><div class="athlete-country">马来西亚 ｜ 1976 / b.1975</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">13</div><div><div class="athlete-name">远藤大由 / 早川贤一</div><div class="athlete-country">日本 ｜ 1988 / b.1988</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">14</div><div><div class="athlete-name">高成炫 / 申白喆</div><div class="athlete-country">韩国 ｜ 1988 / b.1988</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">15</div><div><div class="athlete-name">谢定峰 / 苏伟译</div><div class="athlete-country">马来西亚 ｜ 1994 / b.1994</div><span class="future-tag">现役·仍有机会提升</span></div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="sub-wd" class="sub-panel">
+    <!-- ===== 女子双打 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏸</span>
+      <span class="category-name">女子双打</span>
+      <span class="category-sub">Women's Doubles · 以经典组合计</span>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-goat">GOAT</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card rank-1"><div class="athlete-rank">1</div><div><div class="athlete-name">葛菲 / 顾俊</div><div class="athlete-country">中国 ｜ 1975 / b.1976</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">2</div><div><div class="athlete-name">陈清晨 / 贾一凡</div><div class="athlete-country">中国 ｜ 1998 / b.1997</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">3</div><div><div class="athlete-name">于洋 / 王晓理</div><div class="athlete-country">中国 ｜ 1984 / b.1991</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">4</div><div><div class="athlete-name">高桥礼华 / 松友美佐纪</div><div class="athlete-country">日本 ｜ 1992 / b.1992</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-legend">Legend</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">5</div><div><div class="athlete-name">田卿 / 赵芸蕾</div><div class="athlete-country">中国 ｜ 1989 / b.1990</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">6</div><div><div class="athlete-name">李绍希 / 白荷娜</div><div class="athlete-country">韩国 ｜ 1997 / b.1999</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">7</div><div><div class="athlete-name">福岛由纪 / 广田彩花</div><div class="athlete-country">日本 ｜ 1994 / b.1994</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">8</div><div><div class="athlete-name">松本麻佑 / 永原和可那</div><div class="athlete-country">日本 ｜ 1997 / b.1998</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">9</div><div><div class="athlete-name">陈康乐 / 蒂娜·穆拉里塔兰</div><div class="athlete-country">印度 ｜ 1994 / b.1994</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">10</div><div><div class="athlete-name">金昭映 / 孔熙容</div><div class="athlete-country">韩国 ｜ 1995 / b.2000</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-hof">Hall of Fame</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">11</div><div><div class="athlete-name">骆赢 / 骆羽</div><div class="athlete-country">中国 ｜ 1989 / b.1992</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">12</div><div><div class="athlete-name">杜玥 / 李茵晖</div><div class="athlete-country">中国 ｜ 1997 / b.1998</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">13</div><div><div class="athlete-name">松友组合之后的新一代日本组合</div><div class="athlete-country">日本 · —</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">14</div><div><div class="athlete-name">波莉 / 拉哈尤</div><div class="athlete-country">印度尼西亚 ｜ 1993 / b.1997</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">15</div><div><div class="athlete-name">李文妹 / 李绍希</div><div class="athlete-country">韩国 ｜ 1993 / b.1997</div><span class="future-tag">未来可期</span></div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="sub-xd" class="sub-panel">
+    <!-- ===== 混合双打 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏸</span>
+      <span class="category-name">混合双打</span>
+      <span class="category-sub">Mixed Doubles · 以经典组合计</span>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-goat">GOAT</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card rank-1"><div class="athlete-rank">1</div><div><div class="athlete-name">郑思维 / 黄雅琼</div><div class="athlete-country">中国 ｜ 1997 / b.1992</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">2</div><div><div class="athlete-name">张军 / 高崚</div><div class="athlete-country">中国 ｜ 1975 / b.1979</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">3</div><div><div class="athlete-name">张楠 / 赵芸蕾</div><div class="athlete-country">中国 ｜ 1991 / b.1990</div></div></div>
+        <div class="athlete-card rank-1"><div class="athlete-rank">4</div><div><div class="athlete-name">金东文 / 罗景民</div><div class="athlete-country">韩国 ｜ 1989 / b.1988</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-legend">Legend</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">5</div><div><div class="athlete-name">托托维·艾哈迈德 / 莉莉亚娜·纳西尔</div><div class="athlete-country">印度尼西亚 ｜ 1987 / b.1987</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">6</div><div><div class="athlete-name">徐晨 / 马晋</div><div class="athlete-country">中国 ｜ 1990 / b.1990</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">7</div><div><div class="athlete-name">郑波 / 张洁雯</div><div class="athlete-country">中国 ｜ 1979 / b.1980</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">8</div><div><div class="athlete-name">渡边勇大 / 东野有纱</div><div class="athlete-country">日本 ｜ 1997 / b.1995</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">9</div><div><div class="athlete-name">德差波·保乌拉努科 / 沙西丽·德拉达那猜</div><div class="athlete-country">泰国 ｜ 1993 / b.1995</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">10</div><div><div class="athlete-name">约阿希姆·费舍尔·尼尔森 / 克里斯汀娜·彼德森</div><div class="athlete-country">丹麦 ｜ 1983 / b.1986</div></div></div>
+      </div>
+    </div>
+
+    <div class="tier-section">
+      <div class="tier-header"><span class="tier-badge tier-hof">Hall of Fame</span></div>
+      <div class="athlete-grid tier-grid">
+        <div class="athlete-card compact"><div class="athlete-rank">11</div><div><div class="athlete-name">普拉文·乔丹 / 德比·苏珊托</div><div class="athlete-country">印度尼西亚 ｜ 1997 / b.1997</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">12</div><div><div class="athlete-name">克里斯·阿德考克 / 加布里埃尔·阿德考克</div><div class="athlete-country">英国 ｜ 1989 / b.1991</div></div></div>
+        <div class="athlete-card compact"><div class="athlete-rank">13</div><div><div class="athlete-name">罗伯逊 / 埃姆斯</div><div class="athlete-country">英国 ｜ 1993 / b.1994</div></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">14</div><div><div class="athlete-name">冯彦哲 / 黄东萍</div><div class="athlete-country">中国 ｜ 1997 / b.1997</div><span class="future-tag">现役·有望升至传奇</span></div></div>
+        <div class="athlete-card compact future-note"><div class="athlete-rank">15</div><div><div class="athlete-name">蒋振邦 / 魏雅欣</div><div class="athlete-country">中国 ｜ 1999 / b.2000</div><span class="future-tag">现役·未来可期</span></div></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="sub-lt" class="sub-panel">
+    <!-- ===== 终身成就奖 ===== -->
+    <div class="category-header">
+      <span class="category-icon">🏆</span>
+      <span class="category-name">名人堂终身成就奖</span>
+      <span class="category-sub">超越单项，奖励对羽毛球运动产生深远影响的人物</span>
+    </div>
+    <div class="athlete-grid">
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">林丹</div><div class="athlete-country">中国 ｜ 1983</div><div class="athlete-desc">现代羽毛球全球影响力代表</div></div>
+      </div>
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">李宗伟</div><div class="athlete-country">马来西亚 ｜ 1982</div><div class="athlete-desc">推动羽毛球职业化与国际传播</div></div>
+      </div>
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">李玲蔚</div><div class="athlete-country">中国 ｜ 1964</div><div class="athlete-desc">中国女单黄金时代奠基者</div></div>
+      </div>
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">朴柱奉</div><div class="athlete-country">韩国 ｜ 1969</div><div class="athlete-desc">球员与教练双重传奇</div></div>
+      </div>
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">亨德拉·塞蒂亚万</div><div class="athlete-country">印度尼西亚 ｜ 1984</div><div class="athlete-desc">跨时代双打传奇</div></div>
+      </div>
+      <div class="athlete-card">
+        <div class="athlete-rank">★</div>
+        <div><div class="athlete-name">赵芸蕾</div><div class="athlete-country">中国 ｜ 1990</div><div class="athlete-desc">历史唯一同时在女双、混双长期统治世界的代表人物之一</div></div>
+      </div>
+    </div>
+
+    <div class="instructions" style="margin-top:20px;">
+      💡 <strong>说明：</strong>与传统固定 Top10 不同，这套分级体系的核心优势在于动态可更新——GOAT 代表项目历史上最具统治力的少数传奇，Legend 代表一个时代的标志性人物或组合，Hall of Fame 表彰长期保持顶尖水平的杰出选手。像小黄人组合、双塔组合、安洗莹、陈清晨/贾一凡等现役或近代传奇都能获得符合其历史地位的定位；随着未来荣誉的增加，他们也可以从 Hall of Fame 晋升到 Legend，甚至进入 GOAT 层级。榜单仅供教学参考，欢迎结合最新战绩调整。
+    </div>
+    </div>
+  </div>
+
   <!-- ===== TAB: 场地 ===== -->
   <div id="tab-court" class="tab-panel">
     <h1 class="section-title">战术场地工具</h1>
@@ -743,6 +1540,16 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   event.target.classList.add('active');
   if (name === 'court') { setTimeout(initCourt, 50); }
+}
+
+// ===== Hall of Fame sub-tab switching =====
+function switchAthleteSub(name) {
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sub-' + name).classList.add('active');
+  event.target.classList.add('active');
+  // Scroll athletes content back to top of the tab panel
+  document.getElementById('tab-athletes').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ===== Court Tool =====
