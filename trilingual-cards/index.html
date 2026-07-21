@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A4 三语卡片</title>
+<style>
+  :root {
+    --ink: #111;
+    --paper: #fff;
+    --desk: #ececf1;
+    --accent: #2563eb;
+    --danger: #dc2626;
+    --line: #d8d8de;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Yu Gothic", "Meiryo", sans-serif;
+    background: var(--desk);
+    color: var(--ink);
+  }
+
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 20px;
+  }
+  .toolbar-inner {
+    margin: 0 auto;
+    display: flex; flex-wrap: nowrap; gap: 12px 16px; align-items: center;
+  }
+  .btn-group { display: flex; gap: 12px; align-items: center; margin-left: auto; }
+  .toolbar .title { font-size: 15px; font-weight: 600; }
+  .toolbar .title-block { display: flex; flex-direction: column; gap: 2px; }
+  .editor { display: flex; flex-direction: column; flex: 0 0 auto; min-width: 140px; }
+  .editor label { font-size: 12px; color: #666; }
+  .editor textarea {
+    width: 100%; resize: none; height: 36px;
+    font: inherit; font-size: 14px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 8px; outline: none;
+  }
+  .editor textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+  .status { font-size: 12px; color: #666; min-width: 60px; }
+  .status.error { color: var(--danger); }
+  .btn {
+    font: inherit; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  }
+  .btn:hover { background: #f4f4f7; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #1d4ed8; }
+  .btn svg { width: 15px; height: 15px; }
+  .btn[hidden] { display: none; }
+
+  .stage { padding: 28px 16px 56px; display: flex; justify-content: center; }
+  .sheet-scale { transform-origin: top left; }
+  .sheet {
+    width: 210mm; height: 297mm;
+    background: var(--paper);
+    box-shadow: 0 6px 28px rgba(0,0,0,.18);
+    padding: 9mm;
+    display: grid;
+    grid-template-columns: repeat(6, 30mm);
+    grid-auto-rows: 30mm;
+    justify-content: space-between;
+    align-content: space-between;
+  }
+  .card {
+    width: 30mm; height: 30mm;
+    background: #fff;
+    border: 0.3mm solid #000;
+    padding: 1.8mm;
+    display: flex; flex-direction: column; justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+  }
+  .card.selected { outline: 0.8mm solid var(--accent); outline-offset: 0.4mm; z-index: 1; }
+  .card .ja { font-weight: 700; font-size: 3.3mm; line-height: 1.3; overflow-wrap: anywhere; }
+  .card .en { font-size: 2.6mm; line-height: 1.3; margin-top: 0.7mm; overflow-wrap: anywhere; }
+  .card .divider { border-top: 0.35mm solid #000; margin: 1mm 0; }
+  .card .zh { font-size: 3mm; line-height: 1.3; overflow-wrap: anywhere; }
+  .card .ph {
+    position: absolute; inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    font-size: 2.6mm; color: #b6b6c0;
+    pointer-events: none;
+  }
+  .card.empty .ph { display: flex; }
+  .card.empty .divider { border-top-color: transparent; }
+
+  body.exporting .card.selected { outline: none; }
+  body.exporting .card .ph { display: none !important; }
+
+  @media (max-width: 760px) {
+    .toolbar-inner { flex-wrap: wrap; }
+    .btn-group { margin-left: 0; }
+    .editor { width: 100% !important; margin-left: 0 !important; }
+  }
+
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .stage { padding: 0; display: block; }
+    .sheet-scale { transform: none !important; height: auto !important; }
+    .sheet { box-shadow: none; margin: 0; }
+    .card { cursor: default; }
+    .card.selected { outline: none; }
+    .card .ph { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-inner" id="toolbarInner">
+    <div class="title-block">
+      <span class="title">A4 三语卡片 · 3cm × 3cm</span>
+    </div>
+    <div class="editor">
+      <textarea id="zhInput" rows="1" placeholder="点击任一卡片输入中文，自动翻译为日语和英语"></textarea>
+    </div>
+    <span class="status" id="status"></span>
+    <div class="btn-group">
+      <button type="button" class="btn" id="retryBtn" hidden>重试翻译</button>
+      <button type="button" class="btn primary" id="printBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        打印 A4
+      </button>
+      <button type="button" class="btn" id="pdfBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出 PDF
+      </button>
+      <button type="button" class="btn" id="clearBtn">清空全部</button>
+    </div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="sheet-scale" id="sheetScale">
+    <div class="sheet" id="sheet"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var COLS = 6, ROWS = 9, COUNT = COLS * ROWS;
+  var STORE_KEY = "a4-trilingual-cards-v1";
+
+  var sheet = document.getElementById("sheet");
+  var zhInput = document.getElementById("zhInput");
+  var statusEl = document.getElementById("status");
+  var retryBtn = document.getElementById("retryBtn");
+
+  var cards = [];
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    if (Array.isArray(saved)) cards = saved;
+  } catch (e) {}
+  while (cards.length < COUNT) cards.push({ zh: "", ja: "", en: "" });
+
+  var selected = 0;
+  var debounceTimer = null;
+  var lastRequestId = 0;
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(cards)); } catch (e) {}
+  }
+
+  function setStatus(text, isError, allowRetry) {
+    statusEl.textContent = text || "";
+    statusEl.classList.toggle("error", !!isError);
+    retryBtn.hidden = !(isError && allowRetry !== false);
+  }
+
+  function fitLine(el, baseMm, minMm) {
+    var size = baseMm;
+    el.style.fontSize = size + "mm";
+    while (el.scrollHeight > el.clientHeight + 0.5 && size > minMm) {
+      size -= 0.2;
+      el.style.fontSize = size.toFixed(1) + "mm";
+    }
+  }
+
+  function renderCard(i) {
+    var data = cards[i];
+    var el = sheet.children[i];
+    el.querySelector(".ja").textContent = data.ja;
+    el.querySelector(".en").textContent = data.en;
+    el.querySelector(".zh").textContent = data.zh;
+    el.classList.toggle("empty", !data.zh && !data.ja && !data.en);
+    el.classList.toggle("selected", i === selected);
+    fitLine(el.querySelector(".ja"), 3.3, 1.8);
+    fitLine(el.querySelector(".en"), 2.6, 1.5);
+    fitLine(el.querySelector(".zh"), 3.0, 1.8);
+  }
+
+  function buildSheet() {
+    for (var i = 0; i < COUNT; i++) {
+      var card = document.createElement("div");
+      card.className = "card empty";
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "卡片 " + (i + 1));
+      card.innerHTML =
+        '<div class="ja"></div>' +
+        '<div class="divider"></div>' +
+        '<div class="en"></div>' +
+        '<div class="zh"></div>' +
+        '<div class="ph">点击输入中文</div>';
+      (function (idx) {
+        card.addEventListener("click", function () { selectCard(idx); });
+      })(i);
+      sheet.appendChild(card);
+    }
+    for (var j = 0; j < COUNT; j++) renderCard(j);
+  }
+
+  function selectCard(i) {
+    selected = i;
+    zhInput.value = cards[i].zh;
+    zhInput.focus();
+    for (var k = 0; k < COUNT; k++) sheet.children[k].classList.toggle("selected", k === i);
+  }
+
+  function translateGoogle(text, target) {
+    var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=" +
+      target + "&dt=t&q=" + encodeURIComponent(text);
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error("http " + res.status);
+      return res.json();
+    }).then(function (data) {
+      return data[0].map(function (seg) { return seg[0]; }).join("");
+    });
+  }
+
+  function translateMyMemory(text, target) {
+    var pair = target === "ja" ? "zh-CN|ja" : "zh-CN|en";
+    var url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=" + pair;
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error("http " + res.status);
+      return res.json();
+    }).then(function (data) {
+      var out = data && data.responseData && data.responseData.translatedText;
+      if (!out) throw new Error("empty");
+      return out;
+    });
+  }
+
+  function translate(text, target) {
+    return translateGoogle(text, target).catch(function () {
+      return translateMyMemory(text, target);
+    });
+  }
+
+  function runTranslation() {
+    var i = selected;
+    var text = cards[i].zh.trim();
+    if (!text) {
+      cards[i].ja = ""; cards[i].en = "";
+      renderCard(i); save(); setStatus("");
+      return;
+    }
+    var requestId = ++lastRequestId;
+    setStatus("翻译中…");
+    Promise.all([translate(text, "ja"), translate(text, "en")]).then(function (results) {
+      if (requestId !== lastRequestId) return;
+      cards[i].ja = results[0];
+      cards[i].en = results[1];
+      renderCard(i); save();
+      setStatus("已翻译");
+    }).catch(function () {
+      if (requestId !== lastRequestId) return;
+      setStatus("翻译失败，请检查网络后重试", true);
+    });
+  }
+
+  zhInput.addEventListener("input", function () {
+    cards[selected].zh = zhInput.value;
+    renderCard(selected);
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(runTranslation, 700);
+  });
+
+  retryBtn.addEventListener("click", runTranslation);
+
+  document.getElementById("printBtn").addEventListener("click", function () {
+    window.print();
+  });
+
+  /* ----- PDF export: render sheet to canvas, embed into an A4 PDF ----- */
+  var pdfLibsPromise = null;
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  function loadPdfLibs() {
+    if (!pdfLibsPromise) {
+      pdfLibsPromise = Promise.all([
+        loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"),
+        loadScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js")
+      ]);
+    }
+    return pdfLibsPromise;
+  }
+
+  var exporting = false;
+  async function exportPdf() {
+    if (exporting) return;
+    exporting = true;
+    setStatus("正在生成 PDF…");
+    var scaleEl = document.getElementById("sheetScale");
+    var prevTransform = scaleEl.style.transform;
+    var prevMargin = scaleEl.style.marginBottom;
+    try {
+      await loadPdfLibs();
+      scaleEl.style.transform = "none";
+      scaleEl.style.marginBottom = "0";
+      document.body.classList.add("exporting");
+      var canvas = await window.html2canvas(sheet, { scale: 2, backgroundColor: "#ffffff" });
+      var img = canvas.toDataURL("image/jpeg", 0.95);
+      var pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      pdf.addImage(img, "JPEG", 0, 0, 210, 297);
+      pdf.save("A4-三语卡片.pdf");
+      setStatus("PDF 已导出");
+    } catch (e) {
+      setStatus("PDF 导出失败，请检查网络后重试", true, false);
+    } finally {
+      scaleEl.style.transform = prevTransform;
+      scaleEl.style.marginBottom = prevMargin;
+      document.body.classList.remove("exporting");
+      exporting = false;
+    }
+  }
+
+  document.getElementById("pdfBtn").addEventListener("click", exportPdf);
+
+  document.getElementById("clearBtn").addEventListener("click", function () {
+    if (!confirm("确定清空所有卡片吗？")) return;
+    for (var i = 0; i < COUNT; i++) cards[i] = { zh: "", ja: "", en: "" };
+    save();
+    zhInput.value = "";
+    setStatus("");
+    for (var j = 0; j < COUNT; j++) renderCard(j);
+  });
+
+  function fitStage() {
+    var scaleEl = document.getElementById("sheetScale");
+    var stage = document.querySelector(".stage");
+    var sheetW = sheet.offsetWidth;
+    var sheetH = sheet.offsetHeight;
+    var avail = stage.clientWidth - 32;
+    var scale = Math.min(1, avail / sheetW);
+    scaleEl.style.transform = "scale(" + scale + ")";
+    scaleEl.style.width = sheetW + "px";
+    scaleEl.style.height = sheetH + "px";
+    scaleEl.style.marginBottom = (-(sheetH * (1 - scale))) + "px";
+    alignToolbar();
+  }
+
+  /* title pinned 20px from the left; input's left edge sits above the sheet's
+     left edge; input width is half of the space it would otherwise fill */
+  function alignToolbar() {
+    var inner = document.getElementById("toolbarInner");
+    var titleW = document.querySelector(".title-block").offsetWidth;
+    var statusW = document.getElementById("status").offsetWidth;
+    var btnsW = document.querySelector(".btn-group").offsetWidth;
+    var sheetLeft = sheet.getBoundingClientRect().left + window.pageXOffset;
+    var marginLeft = Math.max(24, sheetLeft - 20 - titleW - 16);
+    var fill = inner.clientWidth - titleW - marginLeft - statusW - btnsW - 3 * 16;
+    var editor = document.querySelector(".editor");
+    editor.style.marginLeft = marginLeft + "px";
+    editor.style.width = Math.max(140, fill / 2) + "px";
+  }
+
+  buildSheet();
+  selectCard(0);
+  fitStage();
+  window.addEventListener("resize", fitStage);
+})();
+</script>
+</body>
+</html>

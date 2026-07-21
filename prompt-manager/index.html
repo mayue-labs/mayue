@@ -4,21 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Prompt Manager (design by mayue)</title>
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('prompt_manager_theme');
+    var theme = saved === 'dark' || saved === 'light'
+      ? saved
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.dataset.theme = theme;
+  }catch(e){
+    document.documentElement.dataset.theme = 'light';
+  }
+})();
+</script>
 <style>
   :root{
     --bg:#FAFAFA;
     --surface:#EEEEF0;
     --surface-2:#E2E2E4;
     --surface-3:#D8D8DC;
+    --input:#FFFFFF;
+    --popover:#FFFFFF;
     --accent:#1AAD71;
     --accent-hover:#189A64;
     --accent-glow:rgba(26,173,113,0.16);
+    --on-accent:#FFFFFF;
+    --on-accent-muted:rgba(255,255,255,0.8);
+    --on-accent-soft:rgba(255,255,255,0.2);
     --danger:#F95A5A;
     --danger-hover:#E44D4D;
+    --on-danger:#FFFFFF;
     --text:#111111;
     --text-dim:#60646B;
     --text-faint:#9A9AA0;
     --border:#E2E2E4;
+    --overlay:rgba(10,12,14,0.6);
+    --toast-bg:#111111;
+    --toast-text:#FFFFFF;
     --radius-sm:8px;
     --radius-md:12px;
     --radius-lg:16px;
@@ -26,6 +48,33 @@
     --shadow-popover:0 8px 24px rgba(0,0,0,0.16);
     --shadow-toast:0 4px 12px rgba(0,0,0,0.15);
     color-scheme: light;
+  }
+  [data-theme="dark"]{
+    --bg:#0F1113;
+    --surface:#17191C;
+    --surface-2:#20242A;
+    --surface-3:#252A31;
+    --input:#12161A;
+    --popover:#1B1F24;
+    --accent:#35D39A;
+    --accent-hover:#50DFAE;
+    --accent-glow:rgba(53,211,154,0.18);
+    --on-accent:#06130D;
+    --on-accent-muted:rgba(6,19,13,0.76);
+    --on-accent-soft:rgba(6,19,13,0.14);
+    --danger:#FF6B6B;
+    --danger-hover:#FF8585;
+    --on-danger:#1A0707;
+    --text:#F3F4F6;
+    --text-dim:#B6BBC2;
+    --text-faint:#7E858F;
+    --border:#2E333A;
+    --overlay:rgba(0,0,0,0.62);
+    --toast-bg:#252A31;
+    --toast-text:#F3F4F6;
+    --shadow-popover:0 10px 30px rgba(0,0,0,0.45);
+    --shadow-toast:0 6px 18px rgba(0,0,0,0.4);
+    color-scheme: dark;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
@@ -35,6 +84,7 @@
     font-family:"PingFang SC","Helvetica Neue",Arial,sans-serif;
     min-height:100vh;
     display:flex;
+    transition:background-color .18s ease, color .18s ease;
   }
   .mono{font-family:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;}
 
@@ -101,7 +151,7 @@
   .sidebar-tag:hover{
     background:var(--surface-2);
   }
-  .sidebar-tag:focus{
+  .sidebar-tag:focus-visible{
     background:var(--surface-2);
     box-shadow:0 0 0 3px var(--accent-glow);
   }
@@ -118,7 +168,7 @@
     text-align:left;
   }
   .sidebar-tag:hover .sidebar-tag-name,
-  .sidebar-tag:focus .sidebar-tag-name{
+  .sidebar-tag:focus-visible .sidebar-tag-name{
     color:var(--text);
     font-weight:500;
   }
@@ -144,7 +194,7 @@
   }
   .sidebar-tag.active .sidebar-tag-name,
   .sidebar-tag.active .sidebar-tag-count{
-    color:#fff;
+    color:var(--on-accent);
   }
   .sidebar-tag-count{
     font-size:11px;
@@ -154,11 +204,54 @@
     margin-left:auto;
   }
   .sidebar-tag:hover .sidebar-tag-count,
-  .sidebar-tag:focus .sidebar-tag-count{
+  .sidebar-tag:focus-visible .sidebar-tag-count{
     color:var(--text);
   }
   .sidebar-tag.active .sidebar-tag-count{
-    color:#fff;
+    color:var(--on-accent);
+  }
+
+  .theme-toggle{
+    width:32px;
+    height:32px;
+    margin:0 auto 12px;
+    border:none;
+    border-radius:50%;
+    background:var(--surface-2);
+    color:var(--text-dim);
+    cursor:pointer;
+    outline:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    flex-shrink:0;
+    transition:background .18s ease, color .18s ease, transform .18s ease;
+  }
+  .theme-toggle:hover{
+    background:var(--surface-3);
+    color:var(--text);
+  }
+  .theme-toggle:active{
+    transform:scale(0.96);
+  }
+  .theme-toggle svg{
+    width:16px;
+    height:16px;
+    position:absolute;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .theme-icon-sun{
+    opacity:0;
+    transform:rotate(-45deg) scale(0.8);
+  }
+  [data-theme="dark"] .theme-icon-sun{
+    opacity:1;
+    transform:rotate(0) scale(1);
+  }
+  [data-theme="dark"] .theme-icon-moon{
+    opacity:0;
+    transform:rotate(45deg) scale(0.8);
   }
 
   .sidebar-footer{
@@ -232,7 +325,7 @@
   .search-input{
     width:100%;
     padding:13px 28px 13px 48px;
-    background:#fff;
+    background:var(--input);
     border:1px solid var(--border);
     border-radius:var(--radius-lg);
     font-size:14px;
@@ -246,7 +339,7 @@
     box-shadow:0 0 0 3px var(--accent-glow);
   }
   .search-input.has-value{
-    background:#fff;
+    background:var(--input);
   }
   .search-icon{
     position:absolute;
@@ -309,7 +402,7 @@
     transform:translate(-50%, -50%);
     width:6px;
     height:6px;
-    background:#fff;
+    background:var(--on-accent);
     border-radius:50%;
   }
   /* ===== Sort Pills (Segmented Control) ===== */
@@ -339,7 +432,7 @@
   }
   .sort-pill.active{
     background:var(--accent);
-    color:#fff;
+    color:var(--on-accent);
   }
 
   /* ===== Prompt List (双列) ===== */
@@ -369,7 +462,7 @@
   .prompt-card:focus .prompt-title,
   .prompt-card:hover .prompt-content,
   .prompt-card:focus .prompt-content{
-    color:#fff;
+    color:var(--on-accent);
   }
   .prompt-card:hover .prompt-usage,
   .prompt-card:focus .prompt-usage,
@@ -377,11 +470,11 @@
   .prompt-card:focus .prompt-date,
   .prompt-card:hover .tag-chip,
   .prompt-card:focus .tag-chip{
-    color:rgba(255,255,255,0.8);
+    color:var(--on-accent-muted);
   }
   .prompt-card:hover .tag-chip,
   .prompt-card:focus .tag-chip{
-    background:rgba(255,255,255,0.2);
+    background:var(--on-accent-soft);
   }
   .prompt-card:active{transform:scale(0.98);}
 
@@ -418,7 +511,7 @@
   .prompt-card:hover .card-menu-btn,
   .prompt-card:focus .card-menu-btn{
     display:flex;
-    color:#fff;
+    color:var(--on-accent);
   }
   .card-menu-btn:hover,
   .card-menu-btn:active{
@@ -429,8 +522,8 @@
   .prompt-card:hover .card-menu-btn:active,
   .prompt-card:focus .card-menu-btn:hover,
   .prompt-card:focus .card-menu-btn:active{
-    background:rgba(255,255,255,0.2);
-    color:#fff;
+    background:var(--on-accent-soft);
+    color:var(--on-accent);
   }
 
   .prompt-header{
@@ -513,7 +606,7 @@
   }
   .prompt-card:hover .prompt-divider,
   .prompt-card:focus .prompt-divider{
-    color:rgba(255,255,255,0.8);
+    color:var(--on-accent-muted);
   }
 
   /* ===== Empty State ===== */
@@ -547,7 +640,7 @@
   .io-btn:hover,
   .io-btn:active{
     background:var(--accent);
-    color:#fff;
+    color:var(--on-accent);
     border-color:var(--accent);
   }
   .io-btn svg{width:14px; height:14px; flex-shrink:0;}
@@ -555,7 +648,7 @@
   /* ===== Overlay (居中弹窗) ===== */
   .overlay{
     position:fixed; inset:0;
-    background:rgba(10,12,14,0.6);
+    background:var(--overlay);
     backdrop-filter:blur(3px);
     display:flex; align-items:center; justify-content:center;
     opacity:0; pointer-events:none;
@@ -594,7 +687,7 @@
   .field input,
   .field textarea{
     width:100%;
-    background:var(--bg);
+    background:var(--input);
     border:1px solid var(--border);
     border-radius:var(--radius-md);
     padding:14px;
@@ -618,7 +711,7 @@
     display:flex;
     flex-wrap:wrap;
     gap:6px;
-    background:var(--bg);
+    background:var(--input);
     border:1px solid var(--border);
     border-radius:12px;
     padding:10px 12px;
@@ -673,10 +766,10 @@
     outline:none;
     transition:all .15s ease;
   }
-  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary{background:var(--accent); color:var(--on-accent);}
   .btn-primary:hover{background:var(--accent-hover);}
   .btn-primary:active{opacity:0.85;}
-  .btn-danger{background:var(--danger); color:#fff;}
+  .btn-danger{background:var(--danger); color:var(--on-danger);}
   .btn-danger:hover{background:var(--danger-hover);}
   .btn-danger:active{opacity:0.85;}
   .btn-ghost{
@@ -735,7 +828,7 @@
   }
   .detail-stat{display:flex; gap:6px;}
   .detail-content{
-    background:var(--bg);
+    background:var(--input);
     border-radius:var(--radius-md);
     padding:14px;
     margin-bottom:16px;
@@ -774,7 +867,7 @@
   }
   .card-btn-copy:hover{
     background:var(--accent);
-    color:#fff;
+    color:var(--on-accent);
     border-color:var(--accent);
   }
   .card-btn-del{
@@ -782,7 +875,7 @@
   }
   .card-btn-del:hover{
     background:var(--danger);
-    color:#fff;
+    color:var(--on-danger);
     border-color:var(--danger);
   }
   /* ===== Card Menu ===== */
@@ -796,7 +889,7 @@
     display:block;
   }
   .card-menu{
-    background:#fff;
+    background:var(--popover);
     border-radius:var(--radius-md);
     overflow:hidden;
     box-shadow:var(--shadow-popover);
@@ -834,11 +927,11 @@
   .card-menu-delete:hover,
   .card-menu-delete:focus{
     background:var(--danger);
-    color:#fff;
+    color:var(--on-danger);
   }
   .card-menu-delete:active{
     background:var(--danger-hover);
-    color:#fff;
+    color:var(--on-danger);
   }
 
   .detail-action{
@@ -852,8 +945,8 @@
     bottom:40px;
     left:calc(250px + (100vw - 250px) / 2);
     transform:translateX(-50%) translateY(10px);
-    background:var(--text);
-    color:#fff;
+    background:var(--toast-bg);
+    color:var(--toast-text);
     padding:12px 18px;
     border-radius:var(--radius-md);
     font-size:13px;
@@ -887,6 +980,7 @@
   }
 
   .io-btn:focus-visible,
+  .theme-toggle:focus-visible,
   .archive-toggle:focus-visible,
   .sort-pill:focus-visible,
   .btn:focus-visible,
@@ -961,6 +1055,15 @@
   <div class="sidebar-app-title">Prompt Manager</div>
   <div class="sidebar-title">标签</div>
   <div class="sidebar-tags" id="sidebarTags"></div>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换到深色模式" aria-pressed="false" title="切换到深色模式">
+    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+    </svg>
+    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+    </svg>
+  </button>
   <div class="sidebar-footer">DESIGN BY MAYUE</div>
 </div>
 
@@ -1104,6 +1207,48 @@
 <script>
 (function(){
   const STORAGE_KEY = 'prompt_manager_v1';
+  const THEME_KEY = 'prompt_manager_theme';
+  const themeToggle = document.getElementById('themeToggle');
+
+  function getSavedTheme(){
+    try{ return localStorage.getItem(THEME_KEY); }
+    catch(e){ return null; }
+  }
+
+  function applyTheme(theme, persist){
+    const nextTheme = theme === 'dark' ? 'dark' : 'light';
+    const isDark = nextTheme === 'dark';
+    document.documentElement.dataset.theme = nextTheme;
+    if(persist){
+      try{ localStorage.setItem(THEME_KEY, nextTheme); }catch(e){}
+    }
+    if(themeToggle){
+      const label = isDark ? '切换到浅色模式' : '切换到深色模式';
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+      themeToggle.setAttribute('aria-label', label);
+      themeToggle.title = label;
+    }
+  }
+
+  if(themeToggle){
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark', true);
+    });
+  }
+
+  try{
+    const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemTheme = e => {
+      if(!getSavedTheme()){
+        applyTheme(e.matches ? 'dark' : 'light', false);
+      }
+    };
+    if(themeMedia.addEventListener){ themeMedia.addEventListener('change', handleSystemTheme); }
+    else if(themeMedia.addListener){ themeMedia.addListener(handleSystemTheme); }
+  }catch(e){}
+
+  applyTheme(document.documentElement.dataset.theme || 'light', false);
 
   let data = { prompts: [] };
   let editingId = null;
