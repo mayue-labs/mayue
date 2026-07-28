@@ -254,6 +254,8 @@
     border-top:1px solid var(--border);
   }
   .h-row:first-child{border-top:none;}
+  .h-left{cursor:pointer; flex:1; padding:2px 0; border-radius:8px;}
+  .h-left:active{background:var(--surface-2);}
   .h-left .date{font-size:13px; color:var(--text);}
   .h-left .interval{font-size:11px; color:var(--text-faint); margin-top:2px;}
   .h-del{
@@ -323,7 +325,7 @@
     display:flex; align-items:center; justify-content:center;
     opacity:0; pointer-events:none;
     transition:opacity .25s ease;
-    z-index:50;
+    z-index:100;
     padding:20px;
   }
   .overlay.show{opacity:1; pointer-events:auto;}
@@ -339,8 +341,9 @@
   .overlay.show .sheet{transform:scale(1);}
   .sheet h2{font-size:16px; margin:0 0 18px 0; font-weight:600;}
 
+  .field{margin-bottom:14px;}
   .field label{font-size:12px; color:var(--text-dim); display:block; margin-bottom:8px;}
-  input[type="datetime-local"]{
+  input[type="date"]{
     width:100%;
     background:var(--surface-2);
     border:1px solid var(--border);
@@ -350,9 +353,54 @@
     font-size:15px;
     font-family:inherit;
   }
-  input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+  input[type="date"]::-webkit-calendar-picker-indicator{
     opacity:0.65;
   }
+  .time-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .time-field{
+    position:relative;
+    flex:1;
+  }
+  .time-num{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 34px 14px 14px;
+    color:var(--text);
+    font-size:16px;
+    font-family:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  .time-stepper{
+    position:absolute;
+    right:6px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .time-step-btn{
+    width:22px; height:18px;
+    border:none;
+    background:transparent;
+    color:var(--text-faint);
+    font-size:9px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:4px;
+  }
+  .time-step-btn:active{background:var(--surface-3); color:var(--text);}
+  .time-colon{font-size:16px; font-weight:600; color:var(--text-dim);}
 
   .btn-row{display:flex; gap:10px; margin-top:20px;}
   .btn{
@@ -411,7 +459,7 @@
     opacity:0;
     transition:all .3s ease;
     pointer-events:none;
-    z-index:60;
+    z-index:110;
     white-space:nowrap;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
@@ -491,13 +539,68 @@
   <div class="sheet">
     <h2>新增记录</h2>
     <div class="field">
-      <label>时间</label>
-      <input type="datetime-local" id="timeInput">
+      <label>日期</label>
+      <input type="date" id="dateInput">
+    </div>
+    <div class="field">
+      <label>时间（24小时制）</label>
+      <div class="time-row">
+        <div class="time-field">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" id="hourInput" class="time-num">
+          <div class="time-stepper">
+            <button type="button" class="time-step-btn" data-target="hourInput" data-dir="1" data-max="23">▲</button>
+            <button type="button" class="time-step-btn" data-target="hourInput" data-dir="-1" data-max="23">▼</button>
+          </div>
+        </div>
+        <span class="time-colon">:</span>
+        <div class="time-field">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" id="minuteInput" class="time-num">
+          <div class="time-stepper">
+            <button type="button" class="time-step-btn" data-target="minuteInput" data-dir="1" data-max="59">▲</button>
+            <button type="button" class="time-step-btn" data-target="minuteInput" data-dir="-1" data-max="59">▼</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div id="warnSlot"></div>
     <div class="btn-row">
       <button class="btn btn-ghost" id="cancelAdd">取消</button>
       <button class="btn btn-primary" id="confirmAdd">记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 修改记录弹层 -->
+<div class="overlay" id="editOverlay">
+  <div class="sheet">
+    <h2>修改记录</h2>
+    <div class="field">
+      <label>日期</label>
+      <input type="date" id="editDateInput">
+    </div>
+    <div class="field">
+      <label>时间（24小时制）</label>
+      <div class="time-row">
+        <div class="time-field">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" id="editHourInput" class="time-num">
+          <div class="time-stepper">
+            <button type="button" class="time-step-btn" data-target="editHourInput" data-dir="1" data-max="23">▲</button>
+            <button type="button" class="time-step-btn" data-target="editHourInput" data-dir="-1" data-max="23">▼</button>
+          </div>
+        </div>
+        <span class="time-colon">:</span>
+        <div class="time-field">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" id="editMinuteInput" class="time-num">
+          <div class="time-stepper">
+            <button type="button" class="time-step-btn" data-target="editMinuteInput" data-dir="1" data-max="59">▲</button>
+            <button type="button" class="time-step-btn" data-target="editMinuteInput" data-dir="-1" data-max="59">▼</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="cancelEdit">取消</button>
+      <button class="btn btn-primary" id="confirmEdit">保存</button>
     </div>
   </div>
 </div>
@@ -523,6 +626,7 @@
 
   let records = [];
   let pendingDeleteIdx = null;
+  let pendingEditIdx = null;
 
   function load(){
     try{
@@ -535,10 +639,43 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }
 
-  function toLocalInputValue(d){
+  function toDateInputValue(d){
     const pad = n => String(n).padStart(2,'0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  function stepTimeField(id, dir, max){
+    const el = document.getElementById(id);
+    let n = parseInt(el.value, 10);
+    if(isNaN(n)) n = 0;
+    n = (n + dir + (max+1)) % (max+1);
+    el.value = pad2(n);
+  }
+
+  document.querySelectorAll('.time-step-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      stepTimeField(btn.dataset.target, parseInt(btn.dataset.dir,10), parseInt(btn.dataset.max,10));
+    });
+  });
+
+  [['hourInput',23], ['minuteInput',59], ['editHourInput',23], ['editMinuteInput',59]].forEach(([id, max])=>{
+    const el = document.getElementById(id);
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowUp'){ e.preventDefault(); stepTimeField(id, 1, max); }
+      else if(e.key === 'ArrowDown'){ e.preventDefault(); stepTimeField(id, -1, max); }
+    });
+    el.addEventListener('input', ()=>{
+      el.value = el.value.replace(/[^0-9]/g,'').slice(0,2);
+    });
+    el.addEventListener('blur', ()=>{
+      let n = parseInt(el.value, 10);
+      if(isNaN(n)) n = 0;
+      n = Math.min(max, Math.max(0, n));
+      el.value = pad2(n);
+    });
+  });
 
   function fmtDate(ts){
     const d = new Date(ts);
@@ -654,7 +791,7 @@
       const ivTxt = prev ? `间隔 ${fmtDuration(ts-prev)}` : '首次记录';
       html += `
         <div class="h-row">
-          <div class="h-left">
+          <div class="h-left" data-idx="${realIdx}">
             <div class="date mono">${fmtDate(ts)}</div>
             <div class="interval">${ivTxt}</div>
           </div>
@@ -662,8 +799,14 @@
         </div>`;
     });
     list.innerHTML = html;
+    list.querySelectorAll('.h-left').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        openEditModal(parseInt(el.dataset.idx,10));
+      });
+    });
     list.querySelectorAll('.h-del').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
         pendingDeleteIdx = parseInt(btn.dataset.idx,10);
         openOverlay('delOverlay');
       });
@@ -686,7 +829,10 @@
   document.getElementById('historyBack').addEventListener('click', closeHistoryPage);
 
   document.getElementById('fabAdd').addEventListener('click', ()=>{
-    document.getElementById('timeInput').value = toLocalInputValue(new Date());
+    const now = new Date();
+    document.getElementById('dateInput').value = toDateInputValue(now);
+    document.getElementById('hourInput').value = pad2(now.getHours());
+    document.getElementById('minuteInput').value = pad2(now.getMinutes());
     document.getElementById('warnSlot').innerHTML = '';
     const btn = document.getElementById('confirmAdd');
     btn.textContent = '记录';
@@ -699,9 +845,13 @@
   });
 
   document.getElementById('confirmAdd').addEventListener('click', function(){
-    const val = document.getElementById('timeInput').value;
-    if(!val){ toast('请选择时间'); return; }
-    const ts = new Date(val).getTime();
+    const dateVal = document.getElementById('dateInput').value;
+    let hourVal = parseInt(document.getElementById('hourInput').value, 10);
+    let minuteVal = parseInt(document.getElementById('minuteInput').value, 10);
+    if(!dateVal || isNaN(hourVal) || isNaN(minuteVal)){ toast('请选择完整的日期和时间'); return; }
+    hourVal = Math.min(23, Math.max(0, hourVal));
+    minuteVal = Math.min(59, Math.max(0, minuteVal));
+    const ts = new Date(`${dateVal}T${pad2(hourVal)}:${pad2(minuteVal)}:00`).getTime();
 
     if(this.dataset.forced === '1'){
       doSave(ts);
@@ -755,6 +905,42 @@
     }
     pendingDeleteIdx = null;
     closeOverlay('delOverlay');
+  });
+
+  // ---- 修改记录 ----
+  function openEditModal(idx){
+    pendingEditIdx = idx;
+    const d = new Date(records[idx]);
+    document.getElementById('editDateInput').value = toDateInputValue(d);
+    document.getElementById('editHourInput').value = pad2(d.getHours());
+    document.getElementById('editMinuteInput').value = pad2(d.getMinutes());
+    openOverlay('editOverlay');
+  }
+  document.getElementById('cancelEdit').addEventListener('click', ()=>{
+    pendingEditIdx = null;
+    closeOverlay('editOverlay');
+  });
+  document.getElementById('editOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'editOverlay'){ pendingEditIdx = null; closeOverlay('editOverlay'); }
+  });
+  document.getElementById('confirmEdit').addEventListener('click', ()=>{
+    if(pendingEditIdx === null) return;
+    const dateVal = document.getElementById('editDateInput').value;
+    let hourVal = parseInt(document.getElementById('editHourInput').value, 10);
+    let minuteVal = parseInt(document.getElementById('editMinuteInput').value, 10);
+    if(!dateVal || isNaN(hourVal) || isNaN(minuteVal)){ toast('请选择完整的日期和时间'); return; }
+    hourVal = Math.min(23, Math.max(0, hourVal));
+    minuteVal = Math.min(59, Math.max(0, minuteVal));
+    const ts = new Date(`${dateVal}T${pad2(hourVal)}:${pad2(minuteVal)}:00`).getTime();
+
+    records.splice(pendingEditIdx, 1);
+    records.push(ts);
+    records.sort((a,b)=>a-b);
+    save();
+    render();
+    pendingEditIdx = null;
+    closeOverlay('editOverlay');
+    toast('已更新');
   });
 
   function updateElapsedNow(){
