@@ -6,7 +6,7 @@
 <title>Rhythm</title>
 <style>
   :root{
-    --bg:#faf9f6;
+    --bg:#FFFFFF;
     --surface:#f0eee6;
     --surface-2:#e6e2d6;
     --surface-3:#dbd6c6;
@@ -39,7 +39,7 @@
     max-width:480px;
     min-height:100vh;
     position:relative;
-    padding:28px 18px 40px;
+    padding:80px 18px 40px;
   }
 
   header.top{
@@ -49,16 +49,11 @@
     margin-bottom:22px;
   }
   header.top h1{
-    font-size:20px;
+    font-size:30px;
     font-weight:600;
     letter-spacing:0.5px;
     margin:0;
     color:#5A564C;
-  }
-  header.top .sub{
-    font-size:12px;
-    color:var(--text-faint);
-    margin-top:4px;
   }
   .fab-circle{
     width:44px; height:44px;
@@ -173,6 +168,8 @@
     justify-content:space-between;
   }
   .card-title .hint{font-size:11px; color:var(--text-faint); font-weight:400;}
+  #elapsedCard .card-title{ justify-content:center; }
+  #elapsedCard .card-title{ font-size:11px; color:var(--text-faint); font-weight:400; }
 
   /* chart */
   .chart-wrap{
@@ -474,20 +471,19 @@
   <header class="top">
     <div>
       <h1>Rhythm</h1>
-      <div class="sub">私人节律记录 · 用满分状态迎接每一天</div>
     </div>
     <button class="fab-circle" id="fabAdd">＋</button>
   </header>
 
   <div class="card elapsed-card" id="elapsedCard">
-    <div class="card-title" style="margin:0 0 6px 0;">自上次记录已过去</div>
     <div class="elapsed-big mono" id="elapsedBig">--</div>
+    <div class="card-title" style="justify-content:center; margin:6px 0 0 0;">距离上次</div>
   </div>
 
   <div class="stats-row">
     <div class="stat-card">
-      <div class="val mono" id="statSinceLast">--</div>
-      <div class="label">距上次</div>
+      <div class="val mono" id="statMin">--</div>
+      <div class="label">最短间隔</div>
     </div>
     <div class="stat-card">
       <div class="val mono" id="statAvg">--</div>
@@ -733,7 +729,7 @@
     const ivs = intervals();
     const last = records.length ? records[records.length-1] : null;
 
-    document.getElementById('statSinceLast').textContent = last ? fmtDuration(Date.now()-last) : '--';
+    document.getElementById('statMin').textContent = ivs.length ? fmtDuration(Math.min(...ivs)) : '--';
     document.getElementById('statAvg').textContent = ivs.length ? fmtDuration(ivs.reduce((a,b)=>a+b,0)/ivs.length) : '--';
     document.getElementById('statMax').textContent = ivs.length ? fmtDuration(Math.max(...ivs)) : '--';
     updateElapsedNow();
