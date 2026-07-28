@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>财务数据录入</title>
+  <title>Wealth Tracker</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -36,7 +36,7 @@
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 24px;
+    padding: 0 max(24px, calc((100% - 1100px) / 2 + 24px));
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -55,21 +55,29 @@
   }
   .header-title { font-size: 15px; font-weight: 600; }
   .header-date { font-size: 12px; color: var(--text-muted); }
+  .header-actions { display:flex; align-items:center; gap:8px; }
+  .header-actions .btn { padding:6px 10px; font-size:12px; }
 
   /* Main */
   .main {
-    padding: 24px;
-    max-width: 780px;
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+    padding: 16px 24px 20px;
+    max-width: 1100px;
     margin: 0 auto;
   }
+  .main > .summary-bar,
+  .main > .export-row { grid-column:1 / -1; }
+  .main > .card:last-of-type { grid-column:1 / -1; }
 
   /* Card */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 16px;
+    padding: 16px;
+    margin-bottom: 0;
   }
 
   /* Summary bar */
@@ -203,6 +211,14 @@
   }
   .export-hint { font-size: 12px; color: var(--text-muted); flex: 1; min-width: 160px; }
 
+  @media (max-width: 700px) {
+    .main { display:block; padding:16px; }
+    .main > * { margin-bottom:12px; }
+    .header { padding:0 12px; }
+    .header-date { display:none; }
+    .header-actions .btn { padding:6px 8px; font-size:11px; }
+  }
+
   /* Toast */
   .toast {
     position: fixed; bottom: 24px; right: 24px;
@@ -222,10 +238,13 @@
 
 <div class="header">
   <div class="header-left">
-    <div class="header-logo">马</div>
-    <span class="header-title">财务数据录入</span>
+        <span class="header-title">Wealth Tracker</span>
   </div>
-  <span class="header-date" id="currentDate"></span>
+  <div class="header-actions">
+    <span class="header-date" id="currentDate"></span>
+    <button class="btn btn-outline" onclick="fillSample()">填写示例数据</button>
+    <button class="btn btn-accent" onclick="exportAssets()">导出 Markdown</button>
+  </div>
 </div>
 
 <div class="main">
@@ -326,13 +345,6 @@
       </div>
       <div class="other-list" id="other-accounts-list"></div>
     </div>
-  </div>
-
-  <!-- Export -->
-  <div class="export-row" style="border-top:none;padding-top:0;margin-top:0">
-    <span class="export-hint">填写完成后导出 Markdown，粘贴到 Claude Project</span>
-    <button class="btn btn-outline" onclick="fillSample()">填入示例数据</button>
-    <button class="btn btn-accent" onclick="exportAssets()">导出 Markdown</button>
   </div>
 
 </div>
