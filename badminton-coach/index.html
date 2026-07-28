@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mayue-badminton-coach</title>
+<title>MAYUE-BADMINTON</title>
 
 <style>
   :root {
@@ -84,10 +84,8 @@
     font-style: normal;
     font-size: 19px;
     font-weight: 700;
-    background: linear-gradient(135deg, #C4722E 0%, #E8924A 50%, #C4722E 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #000;
+    -webkit-text-fill-color: #000;
     letter-spacing: 0.06em;
   }
   .site-title .dot {
@@ -660,6 +658,7 @@
     font-size: 18px;
   }
   .gear-label {
+    display: none;
     font-size: 11px;
     color: var(--text-muted);
     margin-bottom: 2px;
@@ -808,7 +807,7 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="site-title">
-      <span class="title-main">mayue-badminton-coach</span>
+      <span class="title-main">MAYUE-BADMINTON</span>
     </div>
     <nav class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('profile')">个人</button>
@@ -864,7 +863,7 @@
       <div class="rating-layout">
         <div class="radar-wrap">
           <svg class="radar-chart" viewBox="0 0 420 360" role="img" aria-label="六项羽毛球能力评分雷达图">
-            <g transform="translate(210 175)">
+            <g transform="translate(210 175) scale(0.8)">
               <polygon points="0,-132 114,-66 114,66 0,132 -114,66 -114,-66" fill="none" stroke="#D0D0CA" stroke-width="1"/>
               <polygon points="0,-105 91,-52.5 91,52.5 0,105 -91,52.5 -91,-52.5" fill="none" stroke="#D0D0CA" stroke-width="1"/>
               <polygon points="0,-78 68,-39 68,39 0,78 -68,39 -68,-39" fill="none" stroke="#D0D0CA" stroke-width="1"/>
@@ -874,7 +873,7 @@
               <polygon points="0,-106 110,-63 112,65 0,127 -103,59 -114,-66" fill="#8DBDE6" fill-opacity="0.35" stroke="#6EA9D9" stroke-width="3"/>
               <g fill="#6EA9D9" stroke="#fff" stroke-width="2"><circle cx="0" cy="-106" r="7"/><circle cx="110" cy="-63" r="7"/><circle cx="112" cy="65" r="7"/><circle cx="0" cy="127" r="7"/><circle cx="-103" cy="59" r="7"/><circle cx="-114" cy="-66" r="7"/></g>
             </g>
-            <g fill="#5F6469" font-size="14" text-anchor="middle"><text x="210" y="22">技术</text><text x="210" y="40">4.0</text><text x="353" y="104">身体</text><text x="353" y="122">4.8</text><text x="353" y="272">进攻</text><text x="353" y="290">4.9</text><text x="210" y="342">防守</text><text x="210" y="360">4.8</text><text x="67" y="272">球商</text><text x="67" y="290">4.5</text><text x="67" y="104">心理</text><text x="67" y="122">5.0</text></g>
+            <g fill="#5F6469" font-size="14" text-anchor="middle"><text x="210" y="50">技术</text><text x="210" y="68">4.0</text><text x="353" y="104">身体</text><text x="353" y="122">4.8</text><text x="353" y="272">进攻</text><text x="353" y="290">4.9</text><text x="210" y="312">防守</text><text x="210" y="330">4.8</text><text x="67" y="272">球商</text><text x="67" y="290">4.5</text><text x="67" y="104">心理</text><text x="67" y="122">5.0</text></g>
           </svg>
         </div>
         <div>
@@ -1848,10 +1847,30 @@ function arrangeGearTimeline() {
   list.querySelectorAll('.gear-value').forEach(value => {
     value.textContent = value.textContent.replace(/[【】]/g, '');
   });
+  const gearDetails = {
+    '球拍 1': { name: '纳米7强化版 HX7SP 3U', type: '球拍', price: '¥463' },
+    '球拍 2': { name: '纳米7强化版 HX7SP 4U', type: '球拍', price: '¥475' },
+    '球拍 3': { name: '均衡之刃 4U', type: '球拍', price: '¥99' },
+    '球鞋 1': { name: 'Kawasaki K-003 42', type: '球鞋', price: '¥138' },
+    '球鞋 2': { name: 'YONEX SHB210 42', type: '球鞋', price: '¥318' },
+    '球鞋 3': { name: 'VICTOR A780 42', type: '球鞋', price: '¥399' }
+  };
+  list.querySelectorAll('.gear-item').forEach(item => {
+    const label = item.querySelector('.gear-label')?.textContent || '';
+    const date = item.querySelector('.gear-date');
+    const detail = Object.entries(gearDetails).find(([key]) => label.startsWith(key))?.[1];
+    if (!detail) return;
+    item.dataset.gearType = detail.type;
+    if (item.querySelector('.gear-label')) item.querySelector('.gear-label').textContent = detail.name;
+    if (date) {
+      const dateOnly = date.textContent.match(/\d{4}-\d{2}-\d{2}/)?.[0] || '';
+      date.textContent = dateOnly + (detail.price ? ` ｜ ${detail.price}` : '');
+    }
+  });
   const items = Array.from(list.querySelectorAll('.gear-item'));
   const groups = [
-    { label: '球拍', items: items.filter(item => item.querySelector('.gear-label')?.textContent.startsWith('球拍')) },
-    { label: '球鞋', items: items.filter(item => item.querySelector('.gear-label')?.textContent.startsWith('球鞋')) }
+    { label: '球拍', items: items.filter(item => item.dataset.gearType === '球拍') },
+    { label: '球鞋', items: items.filter(item => item.dataset.gearType === '球鞋') }
   ];
   list.innerHTML = '';
   for (const group of groups) {
