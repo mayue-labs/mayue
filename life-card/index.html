@@ -91,18 +91,18 @@
 
   .rule{ height:1px; background:var(--line); margin:22px 0; }
 
-  .row{ display:flex; align-items:center; justify-content:space-between; gap:18px; }
+  .row{ display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto auto auto; column-gap:18px; row-gap:4px; align-items:end; }
 
-  .stat-block{ flex:1; }
-  .stat-label{ font-size:11px; color:var(--text); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; opacity:0.55; }
-  .stat-value{ font-family:'Space Mono', monospace; font-weight:900; font-size:18px; color:var(--text); line-height:1.4; letter-spacing:0.1em; }
-  .stat-sub{ font-size:11px; color:var(--text); margin-top:2px; opacity:0.65; letter-spacing:0.1em; }
+  .stat-block{ display:contents; }
+  .stat-label{ grid-column:1; grid-row:1; align-self:start; font-size:11px; color:var(--text); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0; opacity:0.55; }
+  .stat-value{ grid-column:1; grid-row:2; font-family:'Space Mono', monospace; font-weight:900; font-size:18px; color:var(--text); line-height:1.4; letter-spacing:0.1em; }
+  .stat-sub{ grid-column:1; grid-row:3; font-size:11px; color:var(--text); margin-top:2px; opacity:0.65; letter-spacing:0.1em; }
 
-  .progress-side{ display:flex; flex-direction:column; align-items:flex-end; flex-shrink:0; gap:6px; }
-  .progress-pct{ font-family:'Space Mono', monospace; font-weight:700; font-size:20px; color:var(--text); }
-  .progress-note{ font-size:9px; color:var(--text); opacity:0.5; letter-spacing:0.1em; }
+  .progress-side{ display:contents; }
+  .progress-pct{ grid-column:2; grid-row:2; justify-self:end; font-family:'Space Mono', monospace; font-weight:700; font-size:20px; color:var(--text); }
+  .progress-note{ grid-column:2; grid-row:1; align-self:start; justify-self:end; font-size:9px; color:var(--text); opacity:0.5; letter-spacing:0.1em; }
   .progress-track{
-    width:96px; height:8px; border-radius:999px; background:var(--bar-track); overflow:hidden;
+    grid-column:2; grid-row:3; justify-self:end; width:96px; height:8px; border-radius:999px; background:var(--bar-track); overflow:hidden; transform:translateY(-4px);
   }
   .progress-fill{
     height:100%; background:var(--bar-fill); border-radius:999px;
