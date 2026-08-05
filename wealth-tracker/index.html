@@ -34,13 +34,13 @@
 
   /* Header */
   .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: transparent;
+    border-bottom: none;
     padding: 0 max(24px, calc((100% - 1100px) / 2 + 24px));
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 52px;
+    height: 80px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -53,7 +53,7 @@
     display: flex; align-items: center; justify-content: center;
     color: white; font-size: 14px; font-weight: 700;
   }
-  .header-title { font-size: 15px; font-weight: 600; }
+  .header-title { font-size: 24px; font-weight: 700; }
   .header-date { font-size: 12px; color: var(--text-muted); }
   .header-actions { display:flex; align-items:center; gap:8px; }
   .header-actions .btn { padding:6px 10px; font-size:12px; }
@@ -62,14 +62,18 @@
   .main {
     display:grid;
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:12px;
-    padding: 16px 24px 20px;
+    column-gap: 12px;
+    row-gap: 20px;
+    padding: 40px 24px 20px;
     max-width: 1100px;
     margin: 0 auto;
   }
   .main > .summary-bar,
   .main > .export-row { grid-column:1 / -1; }
-  .main > .card:last-of-type { grid-column:1 / -1; }
+  .main > .gjj-card { grid-column: 1; grid-row: 3; }
+  .main > .other-card { grid-column: 1 / -1; }
+  .account-card { grid-column: 2; grid-row: 3; }
+  .account-card .form-grid { grid-template-columns: repeat(3, 1fr); }
 
   /* Card */
   .card {
@@ -86,13 +90,15 @@
     border: 1px solid #EAC4B2;
     border-radius: 10px;
     padding: 14px 18px;
+    height: 100px;
     display: flex;
+    align-items: center;
     gap: 0;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     flex-wrap: wrap;
   }
   .summary-item {
-    display: flex; flex-direction: column; gap: 2px;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
     flex: 1; min-width: 120px;
     padding: 0 16px;
     border-right: 1px solid #EAC4B2;
@@ -123,10 +129,11 @@
   }
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: repeat(2, 1fr); }
+    .account-card .form-grid { grid-template-columns: repeat(2, 1fr); }
     .form-grid.cols-2m { grid-template-columns: 1fr 1fr; }
     .summary-item { min-width: 100px; padding: 0 10px; }
     .s-value { font-size: 15px; }
-    .main { padding: 16px; }
+    .main { padding: 40px 16px 16px; }
     .card { padding: 16px; }
     .header { padding: 0 16px; }
     .other-row { grid-template-columns: 1fr 1fr auto !important; }
@@ -212,8 +219,9 @@
   .export-hint { font-size: 12px; color: var(--text-muted); flex: 1; min-width: 160px; }
 
   @media (max-width: 700px) {
-    .main { display:block; padding:16px; }
-    .main > * { margin-bottom:12px; }
+    .main { display:block; padding:40px 16px 16px; }
+    .main > * { margin-bottom:20px; }
+    .main > .summary-bar { margin-bottom:25px; }
     .header { padding:0 12px; }
     .header-date { display:none; }
     .header-actions .btn { padding:6px 8px; font-size:11px; }
@@ -221,14 +229,15 @@
 
   /* Toast */
   .toast {
-    position: fixed; bottom: 24px; right: 24px;
+    position: fixed; bottom: 24px; left: 50%;
+    top: auto; right: auto;
     background: #1A1D23; color: white;
     padding: 10px 18px; border-radius: 8px;
     font-size: 13px; font-weight: 500;
-    opacity: 0; transform: translateY(8px);
+    opacity: 0; transform: translate(-50%, 8px);
     transition: all 0.2s; pointer-events: none; z-index: 999;
   }
-  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* Divider */
   .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
@@ -242,8 +251,9 @@
   </div>
   <div class="header-actions">
     <span class="header-date" id="currentDate"></span>
-    <button class="btn btn-outline" onclick="fillSample()">填写示例数据</button>
-    <button class="btn btn-accent" onclick="exportAssets()">导出 Markdown</button>
+    <button class="btn btn-outline" onclick="copyMarkdown()">复制 Markdown</button>
+    <button class="btn btn-outline" onclick="downloadExport('markdown')">导出 Markdown</button>
+    <button class="btn btn-outline" onclick="downloadExport('json')">导出 JSON</button>
   </div>
 </div>
 
@@ -260,7 +270,7 @@
       <span class="s-value" id="total-liquid">¥0</span>
     </div>
     <div class="summary-item">
-      <span class="s-label">公积金 + 医保</span>
+      <span class="s-label">公积金 + 医保 + 养老金</span>
       <span class="s-value" id="total-gjj">¥0</span>
     </div>
   </div>
@@ -303,8 +313,30 @@
     </div>
   </div>
 
+  <!-- 医保账户 & 养老金 -->
+  <div class="card account-card">
+    <div class="section">
+      <div class="form-grid">
+        <div class="account-field">
+          <div class="section-header"><span class="section-title">医保账户</span></div>
+          <div class="field">
+            <label>个人账户余额</label>
+            <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yibao" placeholder="0" oninput="calcTotals()"></div>
+          </div>
+        </div>
+        <div class="account-field">
+          <div class="section-header"><span class="section-title">养老金</span></div>
+          <div class="field">
+            <label>个人账户余额</label>
+            <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yanglao" placeholder="0" oninput="calcTotals()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 公积金 & 医保 -->
-  <div class="card">
+  <div class="card gjj-card">
     <div class="section">
       <div class="section-header"><span class="section-title">公积金</span></div>
       <div class="form-grid">
@@ -323,21 +355,10 @@
       </div>
     </div>
 
-    <hr class="divider">
+  </div>
 
-    <div class="section">
-      <div class="section-header"><span class="section-title">医保账户</span></div>
-      <div class="form-grid">
-        <div class="field">
-          <label>个人账户余额</label>
-          <div class="amount-wrap"><span class="currency">¥</span><input type="number" id="yibao" placeholder="0" oninput="calcTotals()"></div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="divider">
-
-    <!-- 其他账户 -->
+  <!-- 其他账户 -->
+  <div class="card other-card">
     <div class="section">
       <div class="section-header">
         <span class="section-title">其他账户</span>
@@ -377,9 +398,10 @@ function calcTotals() {
   const liquid = yeb + wx + others;
   const gjj = val('gjj-base') + val('gjj-supp');
   const yibao = val('yibao');
+  const yanglao = val('yanglao');
   document.getElementById('total-liquid').textContent = fmt(liquid);
-  document.getElementById('total-gjj').textContent = fmt(gjj + yibao);
-  document.getElementById('total-all').textContent = fmt(liquid + gjj + yibao);
+  document.getElementById('total-gjj').textContent = fmt(gjj + yibao + yanglao);
+  document.getElementById('total-all').textContent = fmt(liquid + gjj + yibao + yanglao);
 }
 
 // Other accounts
@@ -397,7 +419,7 @@ function addOtherAccount(name='', amount='') {
 }
 
 // Export
-function exportAssets() {
+function collectAssets() {
   const now = new Date().toLocaleDateString('zh-CN');
   const yebHuoqi = val('yeb-huoqi');
   const yebWenjian = val('yeb-wenjian');
@@ -408,6 +430,7 @@ function exportAssets() {
   const gjjSupp = val('gjj-supp');
   const gjjMonthly = val('gjj-monthly');
   const yibao = val('yibao');
+  const yanglao = val('yanglao');
 
   let otherRows = '';
   let otherTotal = 0;
@@ -420,7 +443,7 @@ function exportAssets() {
 
   const liquid = yebHuoqi + yebWenjian + yebJinjie + wxHuoqi + wxOther + otherTotal;
   const gjj = gjjBase + gjjSupp;
-  const total = liquid + gjj + yibao;
+  const total = liquid + gjj + yibao + yanglao;
 
   let md = `# 账户资产数据\n> 更新时间：${now}\n\n`;
   md += `## 资产总览\n\n| 账户 | 类型 | 金额 |\n|------|------|------|\n`;
@@ -433,31 +456,52 @@ function exportAssets() {
   if (gjjBase) md += `| 公积金 · 基本账户 | 公积金 | ${fmtMd(gjjBase)} |\n`;
   if (gjjSupp) md += `| 公积金 · 补充账户 | 公积金 | ${fmtMd(gjjSupp)} |\n`;
   if (yibao) md += `| 医保个人账户 | 医保 | ${fmtMd(yibao)} |\n`;
+  if (yanglao) md += `| 养老金个人账户 | 养老金 | ${fmtMd(yanglao)} |\n`;
   md += `| **合计** | | **${fmtMd(total)}** |\n\n`;
   md += `## 关键指标\n\n`;
   md += `- 流动资产：${fmtMd(liquid)}\n`;
   md += `- 公积金合计：${fmtMd(gjj)}\n`;
   if (gjjMonthly) md += `- 公积金月缴：${fmtMd(gjjMonthly)}/月\n`;
   if (yibao) md += `- 医保个人账户：${fmtMd(yibao)}\n`;
+  if (yanglao) md += `- 养老金个人账户：${fmtMd(yanglao)}\n`;
   md += `- 总资产：${fmtMd(total)}\n`;
 
-  navigator.clipboard.writeText(md).then(() => showToast('✓ 已复制到剪贴板'));
+  const json = {
+    updatedAt: new Date().toISOString(),
+    summary: { liquid, providentFund: gjj, medicalInsurance: yibao, pension: yanglao, total },
+    accounts: {
+      yuEBao: { current: yebHuoqi, steady: yebWenjian, advanced: yebJinjie },
+      weChatWealth: { current: wxHuoqi, other: wxOther },
+      providentFund: { base: gjjBase, supplementary: gjjSupp, monthlyContribution: gjjMonthly },
+      medicalInsurance: { personal: yibao },
+      pension: { personal: yanglao },
+      other: Array.from(document.querySelectorAll('#other-accounts-list .other-row')).map(row => ({
+        name: row.querySelector('input[type=text]').value || '其他账户',
+        amount: parseFloat(row.querySelector('.other-amount').value) || 0
+      }))
+    }
+  };
+  return { md, json };
 }
 
-// Sample data
-function fillSample() {
-  document.getElementById('yeb-huoqi').value = 735738;
-  document.getElementById('yeb-wenjian').value = 325000;
-  document.getElementById('yeb-jinjie').value = 53700;
-  document.getElementById('wx-huoqi').value = 430363;
-  document.getElementById('wx-other').value = '';
-  document.getElementById('gjj-base').value = 135122;
-  document.getElementById('gjj-supp').value = 9911;
-  document.getElementById('gjj-monthly').value = 1120;
-  document.getElementById('yibao').value = 3500;
-  calcTotals();
-  showToast('已填入示例数据');
+function copyMarkdown() {
+  navigator.clipboard.writeText(collectAssets().md).then(() => showToast('✓ Markdown 已复制到剪贴板'));
 }
+
+function downloadExport(format) {
+  const { md, json } = collectAssets();
+  const isJson = format === 'json';
+  const blob = new Blob([isJson ? JSON.stringify(json, null, 2) : md], {
+    type: isJson ? 'application/json;charset=utf-8' : 'text/markdown;charset=utf-8'
+  });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `账户资产数据.${isJson ? 'json' : 'md'}`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast(`✓ 已导出 ${isJson ? 'JSON' : 'Markdown'}`);
+}
+
 </script>
 </body>
 </html>
