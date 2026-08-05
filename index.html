@@ -6,66 +6,213 @@
   <title>MAYUE LABS</title>
   <style>
     :root {
-      --bg: #f4f4f2;
-      --card: #ffffff;
-      --text: #20201e;
-      --muted: #777770;
-      --line: #deded8;
-      --accent: #d97757;
+      --bg: #FAF9F6;
+      --project: #5E5D5A;
+      --brand: #000000;
+    }
+    :root[data-theme="light"] {
+      --bg: #FAF9F6;
+      --project: #5E5D5A;
+      --brand: #000000;
+    }
+    :root[data-theme="dark"] {
+      --bg: #141413;
+      --project: #9A9992;
+      --brand: #FFFFFF;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) {
+        --bg: #141413;
+        --project: #9A9992;
+        --brand: #FFFFFF;
+      }
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
       background: var(--bg);
-      color: var(--text);
+      color: var(--project);
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
     }
-    main { width: min(960px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0 56px; }
-    header { margin-bottom: 36px; }
-    h1 { margin: 0; font-size: 32px; letter-spacing: .04em; }
-    header p { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    a {
-      display: block;
-      padding: 24px 22px;
-      min-height: 118px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      color: inherit;
-      text-decoration: none;
-      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    main {
+      position: relative;
+      width: calc(100% - 180px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 30px 0 10vh;
     }
-    a:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 10px 24px rgba(0,0,0,.06); }
-    .number { color: var(--accent); font-size: 12px; letter-spacing: .08em; }
-    h2 { margin: 12px 0 7px; font-size: 18px; font-weight: 600; }
-    .path { color: var(--muted); font-size: 12px; }
-    footer { margin-top: 34px; color: var(--muted); font-size: 12px; }
-    @media (max-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 460px) { main { padding-top: 44px; } .grid { grid-template-columns: 1fr; } }
+    header {
+      padding-top: 0;
+      position: static;
+      margin-bottom: 50px;
+      transform: translateY(-20px);
+    }
+    .content-cluster {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translate(-50%, -50%);
+    }
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -.04em;
+      font-weight: 700;
+      color: var(--brand);
+    }
+    header p { display: none; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, max-content);
+      align-items: start;
+      justify-content: center;
+      column-gap: 5vw;
+      row-gap: 15px;
+      padding-top: 1px;
+      counter-reset: project;
+      position: static;
+      transform: none;
+    }
+    .grid a {
+      display: inline-block;
+      margin-bottom: 0;
+      color: var(--project);
+      font-size: 18px;
+      line-height: 1.35;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 5px;
+    }
+    .grid a::before {
+      counter-increment: project;
+      content: counter(project, decimal-leading-zero) "  ";
+      display: inline-block;
+      min-width: 42px;
+      color: var(--project);
+      font-size: 13px;
+      letter-spacing: .04em;
+      text-decoration: none;
+      vertical-align: 2px;
+    }
+    .number,
+    .path { display: none; }
+    h2 { display: inline; margin: 0; font-size: inherit; font-weight: 400; }
+    .theme-switcher {
+      position: fixed;
+      left: 50%;
+      bottom: 34px;
+      transform: translateX(-50%) scale(.8);
+      transform-origin: bottom center;
+      z-index: 10;
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid color-mix(in srgb, var(--project) 22%, transparent);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--project));
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+      backdrop-filter: blur(12px);
+    }
+    .theme-switcher button {
+      width: 38px;
+      height: 34px;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--project);
+      font: inherit;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color .2s ease, color .2s ease;
+    }
+    .theme-switcher button:hover,
+    .theme-switcher button[aria-pressed="true"] {
+      background: color-mix(in srgb, var(--project) 18%, transparent);
+      color: var(--brand);
+    }
+    .theme-switcher button:focus-visible {
+      outline: 2px solid var(--project);
+      outline-offset: 2px;
+    }
+    @media (max-width: 760px) {
+      main {
+        width: min(100% - 40px, 560px);
+        padding: 56px 0;
+        display: block;
+      }
+      .content-cluster {
+        position: static;
+        display: block;
+        transform: none;
+      }
+      header { margin-bottom: 72px; }
+      .grid {
+        position: static;
+        grid-template-columns: 1fr;
+        justify-content: start;
+        transform: none;
+      }
+      h1 { font-size: 36px; }
+    }
   </style>
 </head>
 <body>
   <main>
-    <header>
-      <h1>MAYUE LABS</h1>
-      <p>mayue-labs / mayue</p>
-    </header>
+    <div class="content-cluster">
+      <header>
+        <h1>mayue-labs</h1>
+      </header>
 
-    <section class="grid" aria-label="Project List">
-      <a href="badminton-coach/"><span class="number">01</span><h2>Badminton Coach</h2><span class="path">badminton-coach</span></a>
-      <a href="life-card/"><span class="number">02</span><h2>Life Progress</h2><span class="path">life-card</span></a>
-      <a href="personal-page/"><span class="number">03</span><h2>Personal Homepage</h2><span class="path">personal-page</span></a>
-      <a href="prompt-manager/"><span class="number">04</span><h2>Prompt Manager</h2><span class="path">prompt-manager</span></a>
-      <a href="rhythm/"><span class="number">05</span><h2>Rhythm</h2><span class="path">rhythm</span></a>
-      <a href="time-perception/"><span class="number">06</span><h2>Time Perception</h2><span class="path">time-perception</span></a>
-      <a href="trilingual-cards/"><span class="number">07</span><h2>Trilingual Cards</h2><span class="path">trilingual-cards</span></a>
-      <a href="tv-clock/"><span class="number">08</span><h2>TV Clock</h2><span class="path">tv-clock</span></a>
-      <a href="wealth-tracker/"><span class="number">09</span><h2>Wealth Tracker</h2><span class="path">wealth-tracker</span></a>
-      <a href="chosen-frame/"><span class="number">10</span><h2>Chosen Frame · 择影</h2><span class="path">chosen-frame</span></a>
-    </section>
+      <section class="grid" aria-label="mayue-labs / project">
+        <a href="personal-page/"><h2>Personal Homepage</h2></a>
+        <a href="wealth-tracker/"><h2>Wealth Tracker</h2></a>
+        <a href="rhythm/"><h2>Rhythm</h2></a>
+        <a href="badminton-coach/"><h2>Badminton Coach</h2></a>
+        <a href="life-card/"><h2>Life Progress</h2></a>
+        <a href="prompt-manager/"><h2>Prompt Manager</h2></a>
+        <a href="time-perception/"><h2>Time Perception</h2></a>
+        <a href="trilingual-cards/"><h2>Trilingual Cards</h2></a>
+        <a href="tv-clock/"><h2>TV Clock</h2></a>
+        <a href="chosen-frame/"><h2>Chosen Frame</h2></a>
+      </section>
+    </div>
+
+    <div class="theme-switcher" role="group" aria-label="主题模式">
+      <button type="button" data-theme="system" aria-label="跟随系统" aria-pressed="true" title="跟随系统">◒</button>
+      <button type="button" data-theme="light" aria-label="浅色模式" aria-pressed="false" title="浅色模式">☀</button>
+      <button type="button" data-theme="dark" aria-label="深色模式" aria-pressed="false" title="深色模式">☾</button>
+    </div>
 
   </main>
+  <script>
+    const root = document.documentElement;
+    const themeButtons = document.querySelectorAll('[data-theme]');
+    const savedTheme = localStorage.getItem('mayue-theme') || 'system';
+
+    function setTheme(theme) {
+      if (theme === 'system') {
+        root.removeAttribute('data-theme');
+      } else {
+        root.dataset.theme = theme;
+      }
+      localStorage.setItem('mayue-theme', theme);
+      themeButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.theme === theme));
+      });
+    }
+
+    themeButtons.forEach((button) => {
+      button.addEventListener('click', () => setTheme(button.dataset.theme));
+    });
+    setTheme(savedTheme);
+  </script>
 </body>
 </html>
